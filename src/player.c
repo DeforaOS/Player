@@ -94,6 +94,10 @@ struct _Player
 	PangoFontDescription * bold;
 	GtkWidget * window;
 	GtkWidget * menubar;
+#if GTK_CHECK_VERSION(2, 18, 0)
+	GtkWidget * infobar;
+	GtkWidget * infobar_label;
+#endif
 	GtkWidget * view;
 	GtkWidget * view_window;
 	GtkToolItem * tb_previous;
@@ -355,6 +359,24 @@ Player * player_new(void)
 			group);
 #endif
 	gtk_box_pack_start(GTK_BOX(vbox), player->menubar, FALSE, FALSE, 0);
+#if GTK_CHECK_VERSION(2, 18, 0)
+	/* infobar */
+	player->infobar = gtk_info_bar_new_with_buttons(GTK_STOCK_CLOSE,
+			GTK_RESPONSE_CLOSE, NULL);
+	gtk_info_bar_set_message_type(GTK_INFO_BAR(player->infobar),
+			GTK_MESSAGE_ERROR);
+	g_signal_connect(player->infobar, "close", G_CALLBACK(gtk_widget_hide),
+			NULL);
+	g_signal_connect(player->infobar, "response", G_CALLBACK(
+				gtk_widget_hide), NULL);
+	widget = gtk_info_bar_get_content_area(GTK_INFO_BAR(player->infobar));
+	player->infobar_label = gtk_label_new(NULL);
+	gtk_widget_show(player->infobar_label);
+	gtk_box_pack_start(GTK_BOX(widget), player->infobar_label, TRUE, TRUE,
+			0);
+	gtk_widget_set_no_show_all(player->infobar, TRUE);
+	gtk_box_pack_start(GTK_BOX(vbox), player->infobar, FALSE, TRUE, 0);
+#endif
 	/* view */
 	player->view_window = gtk_socket_new();
 	gtk_widget_modify_bg(player->view_window, GTK_STATE_NORMAL, &black);
@@ -664,21 +686,26 @@ static gboolean _about_on_closex(gpointer data)
 /* player_error */
 int player_error(Player * player, char const * message, int ret)
 {
+#if GTK_CHECK_VERSION(2, 18, 0)
+	gtk_label_set_text(GTK_LABEL(player->infobar_label), message);
+	gtk_widget_show(player->infobar);
+#else
 	GtkWidget * dialog;
 
 	dialog = gtk_message_dialog_new(GTK_WINDOW(player->window),
 			GTK_DIALOG_DESTROY_WITH_PARENT,
 			GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "%s",
-#if GTK_CHECK_VERSION(2, 6, 0)
+# if GTK_CHECK_VERSION(2, 6, 0)
 			_("Error"));
 	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
 			"%s",
-#endif
+# endif
 			message);
 	gtk_window_set_title(GTK_WINDOW(dialog), _("Error"));
 	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(
 				gtk_widget_destroy), NULL);
 	gtk_dialog_run(GTK_DIALOG(dialog));
+#endif
 	return ret;
 }
 
