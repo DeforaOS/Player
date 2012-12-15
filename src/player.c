@@ -276,6 +276,7 @@ static void _player_filters(GtkWidget * dialog);
 static void _player_message(Player * player, char const * message,
 		unsigned int duration);
 static void _player_reset(Player * player, char const * filename);
+static gboolean _player_start(Player * player);
 
 /* callbacks */
 static gboolean _command_read(GIOChannel * source, GIOCondition condition,
@@ -288,7 +289,6 @@ static gboolean _command_write(GIOChannel * source, GIOCondition condition,
 /* public */
 /* functions */
 /* player_new */
-static void _new_mplayer(Player * player);
 static void _new_column_text(GtkWidget * view, char const * title, int id);
 
 Player * player_new(void)
@@ -320,12 +320,7 @@ Player * player_new(void)
 	player->video_codec = NULL;
 	/* mplayer */
 	player->pid = -1;
-	if(pipe(player->fd[0]) != 0 || pipe(player->fd[1]) != 0)
-	{
-		player_error(player, strerror(errno), 0);
-		object_delete(player);
-		return NULL;
-	}
+	memset(&player->fd, 0, sizeof(player->fd));
 	player->buf = NULL;
 	player->buf_len = 0;
 	/* callbacks */
@@ -481,46 +476,8 @@ Player * player_new(void)
 	gtk_widget_show_all(vbox);
 #endif
 	/* mplayer */
-	_new_mplayer(player);
+	_player_start(player);
 	return player;
-}
-
-static void _new_mplayer(Player * player)
-{
-	char const buf[] = "pausing loadfile " PLAYER_SPLASH " 0\nframe_step\n";
-	char wid[16];
-	char * argv[] = { "mplayer", "-slave", "-wid", NULL, "-quiet",
-		"-idle", "-framedrop", "-softvol", "-softvol-max", "200",
-		"-identify", "-noconsolecontrols", "-nomouseinput", NULL };
-
-	argv[3] = wid;
-	_player_reset(player, NULL);
-	snprintf(wid, sizeof(wid), "%u", gtk_socket_get_id(GTK_SOCKET(
-					player->view_window)));
-	if((player->pid = fork()) == -1)
-	{
-		player_error(player, strerror(errno), 0);
-		return;
-	}
-	if(player->pid == 0) /* child */
-	{
-		close(player->fd[0][0]);
-		close(player->fd[1][1]);
-		if(dup2(player->fd[1][0], 0) == -1)
-			exit(_player_error("dup2", 2));
-		if(dup2(player->fd[0][1], 1) == -1)
-			exit(_player_error("dup2", 2));
-		execvp(argv[0], argv);
-		exit(_player_error(argv[0], 2));
-	}
-	close(player->fd[0][1]);
-	close(player->fd[1][0]);
-	player->channel[0] = g_io_channel_unix_new(player->fd[0][0]);
-	player->read_id = g_io_add_watch(player->channel[0], G_IO_IN,
-			_command_read, player);
-	player->channel[1] = g_io_channel_unix_new(player->fd[1][1]);
-	_player_command(player, buf, sizeof(buf) - 1);
-	player->paused = 1;
 }
 
 static void _new_column_text(GtkWidget * view, char const * title, int id)
@@ -725,6 +682,7 @@ int player_sigchld(Player * player)
 {
 	pid_t pid;
 	int status;
+	char buf[80];
 
 	if(player->pid == -1)
 		return 1;
@@ -732,12 +690,15 @@ int player_sigchld(Player * player)
 		return player_error(player, "waitpid", 1);
 	if(pid == 0)
 		return 1;
-	fputs("player: mplayer ", stderr);
 	if(WIFEXITED(status))
-		fprintf(stderr, "%d%s%u\n", pid, ": exited with code ",
-				WEXITSTATUS(status));
+	{
+		snprintf(buf, sizeof(buf), _("mplayer %d: exited with code %u"),
+				pid, WEXITSTATUS(status));
+		player_error(player, buf, 1);
+	}
 	else
-		fprintf(stderr, "%d%s", pid, ": Unknown state\n");
+		fprintf(stderr, "%s%s%d%s", "player: ", "mplayer ", pid,
+				": Unknown state\n");
 	player->pid = -1;
 	return 0;
 }
@@ -1482,6 +1443,9 @@ static int _player_command(Player * player, char const * cmd, size_t cmd_len)
 	if(player->pid == -1)
 	{
 		fputs("player: mplayer not running\n", stderr);
+		if(player->timeout_id != 0)
+			g_source_remove(player->timeout_id);
+		g_timeout_add(1000, _player_start, player);
 		return 1;
 	}
 #ifdef DEBUG
@@ -1662,6 +1626,52 @@ static void _player_reset(Player * player, char const * filename)
 			? ((p != NULL) ? basename(p) : filename) : "");
 	free(p);
 	gtk_window_set_title(GTK_WINDOW(player->window), buf);
+}
+
+
+/* player_start */
+static gboolean _player_start(Player * player)
+{
+	char const buf[] = "pausing loadfile " PLAYER_SPLASH " 0\nframe_step\n";
+	char wid[16];
+	char * argv[] = { "mplayer", "-slave", "-wid", NULL, "-quiet",
+		"-idle", "-framedrop", "-softvol", "-softvol-max", "200",
+		"-identify", "-noconsolecontrols", "-nomouseinput", NULL };
+
+	argv[3] = wid;
+	_player_reset(player, NULL);
+	snprintf(wid, sizeof(wid), "%u", gtk_socket_get_id(GTK_SOCKET(
+					player->view_window)));
+	if(pipe(player->fd[0]) != 0 || pipe(player->fd[1]) != 0)
+	{
+		player_error(player, strerror(errno), 0);
+		return FALSE;
+	}
+	if((player->pid = fork()) == -1)
+	{
+		player_error(player, strerror(errno), 0);
+		return FALSE;
+	}
+	if(player->pid == 0) /* child */
+	{
+		close(player->fd[0][0]);
+		close(player->fd[1][1]);
+		if(dup2(player->fd[1][0], 0) == -1)
+			exit(_player_error("dup2", 2));
+		if(dup2(player->fd[0][1], 1) == -1)
+			exit(_player_error("dup2", 2));
+		execvp(argv[0], argv);
+		exit(_player_error(argv[0], 2));
+	}
+	close(player->fd[0][1]);
+	close(player->fd[1][0]);
+	player->channel[0] = g_io_channel_unix_new(player->fd[0][0]);
+	player->read_id = g_io_add_watch(player->channel[0], G_IO_IN,
+			_command_read, player);
+	player->channel[1] = g_io_channel_unix_new(player->fd[1][1]);
+	_player_command(player, buf, sizeof(buf) - 1);
+	player->paused = 1;
+	return FALSE;
 }
 
 
