@@ -17,6 +17,7 @@ fr.mo: Player.pot fr.po
 
 clean:
 	$(RM) -- $(Player.pot_OBJS) $(fr.mo_OBJS)
+	./gettext.sh -c -P "$(PREFIX)" -- "fr.mo"
 
 distclean: clean
 	$(RM) -- $(TARGETS)
