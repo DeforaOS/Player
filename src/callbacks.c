@@ -22,6 +22,7 @@
 #include <libgen.h>
 #include <errno.h>
 #include <libintl.h>
+#include "../include/Player.h"
 #include "player.h"
 #include "callbacks.h"
 #define _(string) gettext(string)
@@ -50,6 +51,29 @@ gboolean on_player_closex(gpointer data)
 	player_stop(player);
 	gtk_main_quit();
 	return TRUE;
+}
+
+
+/* on_player_message */
+int on_player_message(void * data, uint32_t value1, uint32_t value2,
+		uint32_t value3)
+{
+	Player * player = data;
+	PlayerMessage message = value1;
+
+	switch(message)
+	{
+		case PLAYER_MESSAGE_PAUSE:
+			player_pause(player);
+			break;
+		case PLAYER_MESSAGE_PLAY:
+			player_play(player);
+			break;
+		case PLAYER_MESSAGE_STOP:
+			player_stop(player);
+			break;
+	}
+	return 0;
 }
 
 

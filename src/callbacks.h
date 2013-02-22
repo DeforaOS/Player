@@ -23,6 +23,8 @@
 
 /* player */
 gboolean on_player_closex(gpointer data);
+int on_player_message(void * data, uint32_t value1, uint32_t value2,
+		uint32_t value3);
 void on_player_removed(gpointer data);
 
 /* file menu */

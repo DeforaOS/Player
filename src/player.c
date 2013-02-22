@@ -33,9 +33,10 @@ static char const _license[] =
 #if GTK_CHECK_VERSION(3, 0, 0)
 # include <gtk/gtkx.h>
 #endif
+#include "../include/Player.h"
 #include "callbacks.h"
-#include "../config.h"
 #include "player.h"
+#include "../config.h"
 #define _(string) gettext(string)
 #define N_(string) (string)
 
@@ -484,6 +485,9 @@ Player * player_new(void)
 #endif
 	/* mplayer */
 	_player_start(player);
+	/* messages */
+	desktop_message_register(PLAYER_CLIENT_MESSAGE, on_player_message,
+			player);
 	return player;
 }
 
