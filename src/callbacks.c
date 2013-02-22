@@ -66,11 +66,17 @@ int on_player_message(void * data, uint32_t value1, uint32_t value2,
 		case PLAYER_MESSAGE_FORWARD:
 			player_forward(player);
 			break;
+		case PLAYER_MESSAGE_NEXT:
+			player_next(player);
+			break;
 		case PLAYER_MESSAGE_PAUSE:
 			player_pause(player);
 			break;
 		case PLAYER_MESSAGE_PLAY:
 			player_play(player);
+			break;
+		case PLAYER_MESSAGE_PREVIOUS:
+			player_previous(player);
 			break;
 		case PLAYER_MESSAGE_REWIND:
 			player_rewind(player);

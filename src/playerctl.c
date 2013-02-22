@@ -68,7 +68,7 @@ static int _error(char const * message, int ret)
 /* usage */
 static int _usage(void)
 {
-	fputs(_("Usage: playerctl -Pps\n"), stderr);
+	fputs(_("Usage: playerctl -FMNPRps\n"), stderr);
 	return 1;
 }
 
@@ -86,11 +86,17 @@ int main(int argc, char * argv[])
 	bindtextdomain(PACKAGE, LOCALEDIR);
 	textdomain(PACKAGE);
 	gtk_init(&argc, &argv);
-	while((o = getopt(argc, argv, "FPRps")) != -1)
+	while((o = getopt(argc, argv, "FMNPRps")) != -1)
 		switch(o)
 		{
 			case 'F':
 				message = PLAYER_MESSAGE_FORWARD;
+				break;
+			case 'M':
+				message = PLAYER_MESSAGE_PREVIOUS;
+				break;
+			case 'N':
+				message = PLAYER_MESSAGE_NEXT;
 				break;
 			case 'P':
 				message = PLAYER_MESSAGE_PAUSE;
