@@ -388,11 +388,6 @@ Player * player_new(void)
 	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
 	toolitem = gtk_tool_item_new();
 	gtk_tool_item_set_expand(toolitem, TRUE);
-	player->progress = gtk_hscale_new_with_range(0.0, 100.0, 0.1);
-	g_signal_connect_swapped(player->progress, "value-changed", G_CALLBACK(
-				on_progress_changed), player);
-	_player_set_progress(player, 0);
-	gtk_container_add(GTK_CONTAINER(toolitem), player->progress);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
 #if GTK_CHECK_VERSION(2, 12, 0)
 	player->tb_volume = gtk_volume_button_new();
@@ -409,6 +404,17 @@ Player * player_new(void)
 	g_signal_connect_swapped(player->tb_fullscreen, "clicked", G_CALLBACK(
 				on_fullscreen), player);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), player->tb_fullscreen, -1);
+	gtk_box_pack_end(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
+	/* progress bar */
+	toolbar = gtk_toolbar_new();
+	toolitem = gtk_tool_item_new();
+	gtk_tool_item_set_expand(toolitem, TRUE);
+	player->progress = gtk_hscale_new_with_range(0.0, 100.0, 0.1);
+	g_signal_connect_swapped(player->progress, "value-changed", G_CALLBACK(
+				on_progress_changed), player);
+	_player_set_progress(player, 0);
+	gtk_container_add(GTK_CONTAINER(toolitem), player->progress);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
 	gtk_box_pack_end(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
 	gtk_widget_show_all(player->window);
 	/* playlist */
@@ -1455,7 +1461,7 @@ static int _player_command(Player * player, char const * cmd, size_t cmd_len)
 		fputs("player: mplayer not running\n", stderr);
 		if(player->timeout_id != 0)
 			g_source_remove(player->timeout_id);
-		g_timeout_add(1000, _player_start, player);
+		g_timeout_add(1000, (GSourceFunc)_player_start, player);
 		return 1;
 	}
 #ifdef DEBUG
