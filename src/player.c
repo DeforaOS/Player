@@ -334,7 +334,7 @@ Player * player_new(void)
 	gtk_window_add_accel_group(GTK_WINDOW(player->window), group);
 	gtk_window_set_default_size(GTK_WINDOW(player->window), 512, 384);
 #if GTK_CHECK_VERSION(2, 6, 0)
-	gtk_window_set_icon_name(GTK_WINDOW(player->window), "multimedia");
+	gtk_window_set_icon_name(GTK_WINDOW(player->window), PLAYER_ICON_NAME);
 #endif
 	gtk_window_set_title(GTK_WINDOW(player->window), _("Media player"));
 	gtk_widget_realize(player->window);
