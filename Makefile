@@ -1,6 +1,6 @@
 PACKAGE	= Player
 VERSION	= 0.1.4
-SUBDIRS	= data po src
+SUBDIRS	= data include po src
 RM	= rm -f
 LN	= ln -f
 TAR	= tar -czvf
@@ -25,6 +25,9 @@ dist:
 		$(PACKAGE)-$(VERSION)/data/player.desktop \
 		$(PACKAGE)-$(VERSION)/data/splash.png \
 		$(PACKAGE)-$(VERSION)/data/project.conf \
+		$(PACKAGE)-$(VERSION)/include/Player.h \
+		$(PACKAGE)-$(VERSION)/include/Makefile \
+		$(PACKAGE)-$(VERSION)/include/project.conf \
 		$(PACKAGE)-$(VERSION)/po/Makefile \
 		$(PACKAGE)-$(VERSION)/po/gettext.sh \
 		$(PACKAGE)-$(VERSION)/po/POTFILES \
@@ -33,6 +36,7 @@ dist:
 		$(PACKAGE)-$(VERSION)/src/callbacks.c \
 		$(PACKAGE)-$(VERSION)/src/player.c \
 		$(PACKAGE)-$(VERSION)/src/main.c \
+		$(PACKAGE)-$(VERSION)/src/playerctl.c \
 		$(PACKAGE)-$(VERSION)/src/Makefile \
 		$(PACKAGE)-$(VERSION)/src/callbacks.h \
 		$(PACKAGE)-$(VERSION)/src/player.h \
