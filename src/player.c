@@ -1417,7 +1417,6 @@ static void _player_set_metadata(Player * player, unsigned int column,
 static void _player_set_progress(Player * player, unsigned int progress)
 {
 	gdouble fraction;
-	char buf[16];
 
 	fraction = (progress <= 100) ? progress : 100;
 	gtk_range_set_value(GTK_RANGE(player->progress), fraction);
