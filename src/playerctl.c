@@ -86,11 +86,17 @@ int main(int argc, char * argv[])
 	bindtextdomain(PACKAGE, LOCALEDIR);
 	textdomain(PACKAGE);
 	gtk_init(&argc, &argv);
-	while((o = getopt(argc, argv, "Pps")) != -1)
+	while((o = getopt(argc, argv, "FPRps")) != -1)
 		switch(o)
 		{
+			case 'F':
+				message = PLAYER_MESSAGE_FORWARD;
+				break;
 			case 'P':
 				message = PLAYER_MESSAGE_PAUSE;
+				break;
+			case 'R':
+				message = PLAYER_MESSAGE_REWIND;
 				break;
 			case 'p':
 				message = PLAYER_MESSAGE_PLAY;
