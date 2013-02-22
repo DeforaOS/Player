@@ -1,6 +1,6 @@
 /* $Id$ */
 static char const _copyright[] =
-"Copyright (c) 2006-2012 Pierre Pronchery <khorben@defora.org>";
+"Copyright (c) 2006-2013 Pierre Pronchery <khorben@defora.org>";
 /* This file is part of DeforaOS Desktop Player */
 static char const _license[] =
 "This program is free software: you can redistribute it and/or modify\n"
@@ -14,8 +14,6 @@ static char const _license[] =
 "\n"
 "You should have received a copy of the GNU General Public License\n"
 "along with this program. If not, see <http://www.gnu.org/licenses/>.\n";
-/* TODO:
- * - change the progress bar for a slider */
 
 
 
@@ -41,6 +39,7 @@ static char const _license[] =
 #define _(string) gettext(string)
 #define N_(string) (string)
 
+/* constants */
 #ifndef PREFIX
 # define PREFIX		"/usr/local"
 #endif
@@ -389,7 +388,9 @@ Player * player_new(void)
 	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
 	toolitem = gtk_tool_item_new();
 	gtk_tool_item_set_expand(toolitem, TRUE);
-	player->progress = gtk_progress_bar_new();
+	player->progress = gtk_hscale_new_with_range(0.0, 100.0, 0.1);
+	g_signal_connect_swapped(player->progress, "value-changed", G_CALLBACK(
+				on_progress_changed), player);
 	_player_set_progress(player, 0);
 	gtk_container_add(GTK_CONTAINER(toolitem), player->progress);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
@@ -566,6 +567,20 @@ void player_set_fullscreen(Player * player, gboolean fullscreen)
 #endif
 	}
 	player->fullscreen = fullscreen;
+}
+
+
+/* player_set_progress */
+void player_set_progress(Player * player, gdouble progress)
+{
+	char buf[32];
+	int len;
+
+	if(progress < 0)
+		/* XXX hack */
+		progress = gtk_range_get_value(GTK_RANGE(player->progress));
+	len = snprintf(buf, sizeof(buf), "%s %.1lf %d\n", "seek", progress, 1);
+	_player_command(player, buf, len);
 }
 
 
@@ -1405,11 +1420,7 @@ static void _player_set_progress(Player * player, unsigned int progress)
 	char buf[16];
 
 	fraction = (progress <= 100) ? progress : 100;
-	fraction /= 100;
-	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(player->progress),
-			fraction);
-	snprintf(buf, sizeof(buf), "%u%%", progress);
-	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(player->progress), buf);
+	gtk_range_set_value(GTK_RANGE(player->progress), fraction);
 }
 
 

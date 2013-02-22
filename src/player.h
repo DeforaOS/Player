@@ -1,5 +1,5 @@
 /* $Id$ */
-/* Copyright (c) 2006-2012 Pierre Pronchery <khorben@defora.org> */
+/* Copyright (c) 2006-2013 Pierre Pronchery <khorben@defora.org> */
 /* This file is part of DeforaOS Desktop Player */
 /* This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +46,7 @@ void player_delete(Player * player);
 /* accessors */
 gboolean player_get_fullscreen(Player * player);
 void player_set_fullscreen(Player * player, gboolean fullscreen);
+void player_set_progress(Player * player, gdouble progress);
 void player_set_size(Player * player, int width, int height);
 void player_set_volume(Player * player, gdouble volume);
 
