@@ -527,7 +527,7 @@ void player_delete(Player * player)
 		else if(res == 0)
 			nanosleep(&ts, NULL);
 		else if(WIFEXITED(status) || WIFSIGNALED(status))
-				break;
+			break;
 		if(i == 4)
 			kill(player->pid, SIGTERM);
 	}
