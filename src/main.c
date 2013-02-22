@@ -63,7 +63,8 @@ int main(int argc, char * argv[])
 	int o;
 	int i;
 
-	setlocale(LC_ALL, "");
+	if(setlocale(LC_ALL, "") == NULL)
+		player_error(NULL, "setlocale", 1);
 	bindtextdomain(PACKAGE, LOCALEDIR);
 	textdomain(PACKAGE);
 	gtk_init(&argc, &argv);
@@ -111,7 +112,7 @@ static void _signal_handler(int signum)
 		return;
 	if((pid = waitpid(-1, &status, WNOHANG)) == -1)
 	{
-		player_error(NULL, "waitpid", 0);
+		player_error(NULL, "waitpid", 1);
 		return;
 	}
 	if(pid == 0)
