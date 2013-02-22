@@ -1452,6 +1452,8 @@ static int _player_error(char const * message, int ret)
 
 
 /* player_command */
+static gboolean _command_on_timeout(gpointer data);
+
 static int _player_command(Player * player, char const * cmd, size_t cmd_len)
 {
 	char * p;
@@ -1461,7 +1463,7 @@ static int _player_command(Player * player, char const * cmd, size_t cmd_len)
 		fputs("player: mplayer not running\n", stderr);
 		if(player->timeout_id != 0)
 			g_source_remove(player->timeout_id);
-		g_timeout_add(1000, (GSourceFunc)_player_start, player);
+		g_timeout_add(1000, _command_on_timeout, player);
 		return 1;
 	}
 #ifdef DEBUG
@@ -1477,6 +1479,13 @@ static int _player_command(Player * player, char const * cmd, size_t cmd_len)
 		player->write_id = g_io_add_watch(player->channel[1], G_IO_OUT,
 				_command_write, player);
 	return 0;
+}
+
+static gboolean _command_on_timeout(gpointer data)
+{
+	Player * player = data;
+
+	return _player_start(player);
 }
 
 
