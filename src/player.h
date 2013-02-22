@@ -75,13 +75,13 @@ void player_playlist_play_selected(Player * player);
 void player_playlist_save_as_dialog(Player * player);
 
 /* playback */
+void player_forward(Player * player);
 void player_next(Player * player);
-int player_play(Player * player);
 void player_pause(Player * player);
+void player_play(Player * player);
 void player_previous(Player * player);
 void player_stop(Player * player);
 void player_rewind(Player * player);
-void player_forward(Player * player);
 
 /* user interface */
 void player_show_playlist(Player * player, gboolean show);

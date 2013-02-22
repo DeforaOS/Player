@@ -894,14 +894,14 @@ void player_pause(Player * player)
 
 
 /* player_play */
-int player_play(Player * player)
+void player_play(Player * player)
 {
 	char cmd[512];
 	size_t len;
 	char * filename;
 
 	if((filename = _player_get_filename(player)) == NULL)
-		return 1;
+		return;
 	/* FIXME escape double quotes in filename? */
 	if(player->paused == 1)
 		len = snprintf(cmd, sizeof(cmd), "%s", "pause\n");
@@ -910,13 +910,13 @@ int player_play(Player * player)
 			>= sizeof(cmd))
 	{
 		fputs("player: String too long\n", stderr);
-		return 1;
+		return;
 	}
 	else
 		_player_reset(player, filename);
 	free(filename);
 	if(_player_command(player, cmd, len) != 0)
-		return 1;
+		return;
 	player->paused = 0;
 	if(player->read_id == 0)
 		player->read_id = g_io_add_watch(player->channel[0], G_IO_IN,
@@ -924,7 +924,6 @@ int player_play(Player * player)
 	if(player->timeout_id == 0)
 		player->timeout_id = g_timeout_add(500, _command_timeout,
 				player);
-	return 0;
 }
 
 
