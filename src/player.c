@@ -112,10 +112,6 @@ struct _Player
 	GtkWidget * tb_volume;
 #endif
 	GtkToolItem * tb_fullscreen;
-#ifndef EMBEDDED
-	GtkWidget * statusbar;
-	gint statusbar_id;
-#endif
 
 	/* about */
 	GtkWidget * ab_window;
@@ -380,12 +376,6 @@ Player * player_new(void)
 	g_signal_connect_swapped(G_OBJECT(player->view_window), "plug-removed",
 			G_CALLBACK(on_player_removed), player);
 	gtk_box_pack_start(GTK_BOX(vbox), player->view_window, TRUE, TRUE, 0);
-#ifndef EMBEDDED
-	/* statusbar */
-	player->statusbar = gtk_statusbar_new();
-	player->statusbar_id = 0;
-	gtk_box_pack_end(GTK_BOX(vbox), player->statusbar, FALSE, FALSE, 0);
-#endif
 	/* playbar */
 	toolbar = desktop_toolbar_create(_player_playbar, player, group);
 	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
@@ -565,18 +555,12 @@ void player_set_fullscreen(Player * player, gboolean fullscreen)
 	if(fullscreen)
 	{
 		gtk_widget_hide(player->menubar);
-#ifndef EMBEDDED
-		gtk_widget_hide(player->statusbar);
-#endif
 		gtk_window_fullscreen(GTK_WINDOW(player->window));
 	}
 	else
 	{
 		gtk_window_unfullscreen(GTK_WINDOW(player->window));
 		gtk_widget_show(player->menubar);
-#ifndef EMBEDDED
-		gtk_widget_show(player->statusbar);
-#endif
 	}
 	player->fullscreen = fullscreen;
 }
