@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+	<!ENTITY firstname "Pierre">
+	<!ENTITY surname   "Pronchery">
+	<!ENTITY username  "khorben">
+	<!ENTITY email     "khorben@defora.org">
+	<!ENTITY section   "1">
+	<!ENTITY title     "Player User Manual">
+	<!ENTITY package   "DeforaOS Player">
+	<!ENTITY name      "playerctl">
+	<!ENTITY purpose   "Control interface for the media player">
+]>
+<refentry>
+	<refentryinfo>
+		<title>&title;</title>
+		<productname>&package;</productname>
+		<authorgroup>
+			<author>
+				<firstname>&firstname;</firstname>
+				<surname>&surname;</surname>
+				<contrib>Code and documentation.</contrib>
+				<address>
+					<email>&email;</email>
+				</address>
+			</author>
+		</authorgroup>
+		<copyright>
+			<year>2013</year>
+			<holder>&firstname; &surname; &lt;&email;&gt;</holder>
+		</copyright>
+		<legalnotice>
+			<para>This manual page was written for the DeforaOS project (and may be
+				used by others).</para>
+			<para>Permission is granted to copy, distribute and/or modify this
+				document under the terms of the GNU General Public License,
+				Version 3 as published by the Free Software Foundation.</para>
+		</legalnotice>
+	</refentryinfo>
+	<refmeta>
+		<refentrytitle>&name;</refentrytitle>
+		<manvolnum>&section;</manvolnum>
+	</refmeta>
+	<refnamediv>
+		<refname>&name;</refname>
+		<refpurpose>&purpose;</refpurpose>
+	</refnamediv>
+	<refsynopsisdiv>
+		<cmdsynopsis>
+			<command>&name;</command>
+			<group choice="plain">
+				<arg choice="plain">-F</arg>
+				<arg choice="plain">-M</arg>
+				<arg choice="plain">-N</arg>
+				<arg choice="plain">-P</arg>
+				<arg choice="plain">-R</arg>
+				<arg choice="plain">-p</arg>
+				<arg choice="plain">-s</arg>
+			</group>
+		</cmdsynopsis>
+	</refsynopsisdiv>
+	<refsect1 id="description">
+		<title>Description</title>
+		<para><command>&name;</command> is a control interface for the media
+			player.</para>
+	</refsect1>
+	<refsect1 id="options">
+		<title>Options</title>
+		<para>The following options are available:</para>
+		<variablelist>
+			<varlistentry>
+				<term><option>-F</option></term>
+				<listitem>
+					<para>Fast forward within the file currently played.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>-M</option></term>
+				<listitem>
+					<para>Skips to the previous file in the playlist.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>-N</option></term>
+				<listitem>
+					<para>Skips to the next file in the playlist.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>-P</option></term>
+				<listitem>
+					<para>Pause (or unpause) playback.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>-R</option></term>
+				<listitem>
+					<para>Rewind within the file currently played.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>-p</option></term>
+				<listitem>
+					<para>Starts (or unpause) playback.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>-s</option></term>
+				<listitem>
+					<para>Stops playback.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</refsect1>
+	<refsect1 id="bugs">
+		<title>Bugs</title>
+		<para>Issues can be listed and reported at <ulink
+				url="http://www.defora.org/os/project/bug_list/336/Player"/>.</para>
+	</refsect1>
+	<refsect1 id="see_also">
+		<title>See also</title>
+		<para>
+			<citerefentry>
+				<refentrytitle>player</refentrytitle>
+				<manvolnum>1</manvolnum>
+			</citerefentry>
+	</para>
+	</refsect1>
+</refentry>
+<!-- vim: set noet ts=1 sw=1 sts=1 tw=80: -->

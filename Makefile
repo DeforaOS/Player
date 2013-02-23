@@ -1,6 +1,6 @@
 PACKAGE	= Player
 VERSION	= 0.1.4
-SUBDIRS	= data include po src
+SUBDIRS	= data doc include po src
 RM	= rm -f
 LN	= ln -f
 TAR	= tar -czvf
@@ -25,6 +25,11 @@ dist:
 		$(PACKAGE)-$(VERSION)/data/player.desktop \
 		$(PACKAGE)-$(VERSION)/data/splash.png \
 		$(PACKAGE)-$(VERSION)/data/project.conf \
+		$(PACKAGE)-$(VERSION)/doc/Makefile \
+		$(PACKAGE)-$(VERSION)/doc/docbook.sh \
+		$(PACKAGE)-$(VERSION)/doc/player.xml \
+		$(PACKAGE)-$(VERSION)/doc/playerctl.xml \
+		$(PACKAGE)-$(VERSION)/doc/project.conf \
 		$(PACKAGE)-$(VERSION)/include/Player.h \
 		$(PACKAGE)-$(VERSION)/include/Makefile \
 		$(PACKAGE)-$(VERSION)/include/project.conf \
