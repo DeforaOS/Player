@@ -21,13 +21,11 @@
 #include <string.h>
 #include <libgen.h>
 #include <errno.h>
-#include <libintl.h>
 #include <Desktop.h>
 #include "../include/Player.h"
 #include "player.h"
 #include "callbacks.h"
 #include "../config.h"
-#define _(string) gettext(string)
 
 
 /* macros */
