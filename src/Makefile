@@ -32,7 +32,7 @@ playerctl_LDFLAGS = $(LDFLAGSF) $(LDFLAGS)
 playerctl: $(playerctl_OBJS)
 	$(CC) -o playerctl $(playerctl_OBJS) $(playerctl_LDFLAGS)
 
-callbacks.o: callbacks.c callbacks.h player.h ../include/Player.h
+callbacks.o: callbacks.c callbacks.h player.h ../include/Player.h ../config.h
 	$(CC) $(player_CFLAGS) -c callbacks.c
 
 player.o: player.c callbacks.h player.h ../include/Player.h ../config.h

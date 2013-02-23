@@ -45,6 +45,7 @@ void on_view_switch_subtitles(gpointer data);
 
 /* help menu */
 void on_help_about(gpointer data);
+void on_help_contents(gpointer data);
 
 /* toolbar */
 void on_close(gpointer data);

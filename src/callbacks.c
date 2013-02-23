@@ -25,6 +25,7 @@
 #include "../include/Player.h"
 #include "player.h"
 #include "callbacks.h"
+#include "../config.h"
 #define _(string) gettext(string)
 
 
@@ -192,6 +193,13 @@ void on_help_about(gpointer data)
 	Player * player = data;
 
 	player_about(player);
+}
+
+
+/* on_help_contents */
+void on_help_contents(gpointer data)
+{
+	desktop_help_contents(PACKAGE, "player");
 }
 
 
