@@ -1,5 +1,5 @@
 PACKAGE	= Player
-VERSION	= 0.1.4
+VERSION	= 0.1.5
 SUBDIRS	= data doc include po src
 RM	= rm -f
 LN	= ln -f
