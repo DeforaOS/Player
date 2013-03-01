@@ -518,7 +518,8 @@ void player_delete(Player * player)
 		g_source_remove(player->write_id);
 	if(player->timeout_id != 0)
 		g_source_remove(player->timeout_id);
-	g_io_channel_write(player->channel[1], cmd, sizeof(cmd) - 1, &written);
+	g_io_channel_write_chars(player->channel[1], cmd, sizeof(cmd) - 1,
+			&written, NULL);
 	g_io_channel_shutdown(player->channel[1], FALSE, NULL);
 	for(i = 0; i < 6; i++)
 	{
@@ -1652,6 +1653,7 @@ static gboolean _player_start(Player * player)
 	char * argv[] = { "mplayer", "-slave", "-wid", NULL, "-quiet",
 		"-idle", "-framedrop", "-softvol", "-softvol-max", "200",
 		"-identify", "-noconsolecontrols", "-nomouseinput", NULL };
+	GError * error = NULL;
 
 	argv[3] = wid;
 	_player_reset(player, NULL);
@@ -1681,9 +1683,13 @@ static gboolean _player_start(Player * player)
 	close(player->fd[0][1]);
 	close(player->fd[1][0]);
 	player->channel[0] = g_io_channel_unix_new(player->fd[0][0]);
+	g_io_channel_set_encoding(player->channel[0], NULL, &error);
+	g_io_channel_set_buffered(player->channel[0], FALSE);
 	player->read_id = g_io_add_watch(player->channel[0], G_IO_IN,
 			_command_read, player);
 	player->channel[1] = g_io_channel_unix_new(player->fd[1][1]);
+	g_io_channel_set_encoding(player->channel[1], NULL, &error);
+	g_io_channel_set_buffered(player->channel[1], FALSE);
 	_player_command(player, buf, sizeof(buf) - 1);
 	player->paused = 1;
 	return FALSE;
@@ -1703,6 +1709,8 @@ static gboolean _command_read(GIOChannel * source, GIOCondition condition,
 	gsize read;
 	size_t i;
 	size_t j;
+	GIOStatus status;
+	GError * error = NULL;
 
 	if(condition != G_IO_IN)
 	{
@@ -1710,17 +1718,20 @@ static gboolean _command_read(GIOChannel * source, GIOCondition condition,
 		gtk_main_quit();
 		return FALSE; /* FIXME report error */
 	}
-	if(g_io_channel_read(source, &buf[buf_len], sizeof(buf) - buf_len,
-				&read) != G_IO_ERROR_NONE)
-	{
-		player_error(player, "", 0); /* FIXME */
-		gtk_main_quit();
-		return FALSE; /* FIXME report error */
-	}
-	if(read == 0)
+	status = g_io_channel_read_chars(source, &buf[buf_len],
+			sizeof(buf) - buf_len, &read, &error);
+	if(status == G_IO_STATUS_EOF || read == 0)
 	{
 		player->read_id = 0;
 		return FALSE; /* FIXME end of file? */
+	}
+	else if(status != G_IO_STATUS_NORMAL)
+	{
+		player_error(player, error->message, 1);
+		g_error_free(error);
+		/* FIXME recover somehow */
+		gtk_main_quit();
+		return FALSE;
 	}
 	buf_len += read;
 	j = 0;
@@ -1860,6 +1871,7 @@ static gboolean _command_write(GIOChannel * source, GIOCondition condition,
 	Player * player = data;
 	gsize written;
 	char * p;
+	GError * error = NULL;
 
 	if(condition != G_IO_OUT)
 	{
@@ -1868,13 +1880,15 @@ static gboolean _command_write(GIOChannel * source, GIOCondition condition,
 		player->write_id = 0;
 		return FALSE; /* FIXME report error */
 	}
-	if(g_io_channel_write(source, player->buf, player->buf_len, &written)
-			!= G_IO_ERROR_NONE)
+	if(g_io_channel_write_chars(source, player->buf, player->buf_len,
+				&written, &error) != G_IO_STATUS_NORMAL)
 	{
-		player_error(player, "", 0); /* FIXME */
+		player_error(player, error->message, 1);
+		g_error_free(error);
+		/* FIXME recover somehow */
 		gtk_main_quit();
 		player->write_id = 0;
-		return FALSE; /* FIXME report error */
+		return FALSE;
 	}
 #ifdef DEBUG
 	fprintf(stderr, "DEBUG: wrote %zu bytes\n", written);
