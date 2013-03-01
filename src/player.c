@@ -1683,12 +1683,23 @@ static gboolean _player_start(Player * player)
 	close(player->fd[0][1]);
 	close(player->fd[1][0]);
 	player->channel[0] = g_io_channel_unix_new(player->fd[0][0]);
-	g_io_channel_set_encoding(player->channel[0], NULL, &error);
+	if(g_io_channel_set_encoding(player->channel[0], NULL, &error)
+			!= G_IO_STATUS_NORMAL)
+	{
+		player_error(player, error->message, 1);
+		g_error_free(error);
+		error = NULL;
+	}
 	g_io_channel_set_buffered(player->channel[0], FALSE);
 	player->read_id = g_io_add_watch(player->channel[0], G_IO_IN,
 			_command_read, player);
 	player->channel[1] = g_io_channel_unix_new(player->fd[1][1]);
-	g_io_channel_set_encoding(player->channel[1], NULL, &error);
+	if(g_io_channel_set_encoding(player->channel[1], NULL, &error)
+			!= G_IO_STATUS_NORMAL)
+	{
+		player_error(player, error->message, 1);
+		g_error_free(error);
+	}
 	g_io_channel_set_buffered(player->channel[1], FALSE);
 	_player_command(player, buf, sizeof(buf) - 1);
 	player->paused = 1;
