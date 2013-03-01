@@ -403,6 +403,7 @@ Player * player_new(void)
 	toolitem = gtk_tool_item_new();
 	gtk_tool_item_set_expand(toolitem, TRUE);
 	player->progress = gtk_hscale_new_with_range(0.0, 100.0, 0.1);
+	gtk_scale_set_draw_value(GTK_SCALE(player->progress), FALSE);
 	g_signal_connect_swapped(player->progress, "value-changed", G_CALLBACK(
 				on_progress_changed), player);
 	_player_set_progress(player, 0);
