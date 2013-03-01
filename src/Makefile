@@ -36,7 +36,7 @@ callbacks.o: callbacks.c callbacks.h player.h ../include/Player.h ../config.h
 	$(CC) $(player_CFLAGS) -c callbacks.c
 
 player.o: player.c callbacks.h player.h ../include/Player.h ../config.h
-	$(CC) $(player_CFLAGS) -c player.c
+	$(CC) -D PREFIX=\"$(PREFIX)\" $(player_CFLAGS) -c player.c
 
 main.o: main.c player.h ../config.h
 	$(CC) -D PREFIX=\"$(PREFIX)\" $(player_CFLAGS) -c main.c

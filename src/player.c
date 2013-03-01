@@ -44,6 +44,9 @@ static char const _license[] =
 #ifndef PREFIX
 # define PREFIX		"/usr/local"
 #endif
+#ifndef BINDIR
+# define BINDIR		PREFIX "/bin"
+#endif
 #ifndef DATADIR
 # define DATADIR	PREFIX "/share"
 #endif
@@ -1650,12 +1653,13 @@ static gboolean _player_start(Player * player)
 {
 	char const buf[] = "pausing loadfile " PLAYER_SPLASH " 0\nframe_step\n";
 	char wid[16];
-	char * argv[] = { "mplayer", "-slave", "-wid", NULL, "-quiet",
-		"-idle", "-framedrop", "-softvol", "-softvol-max", "200",
-		"-identify", "-noconsolecontrols", "-nomouseinput", NULL };
+	char * argv[] = { BINDIR "/mplayer", "mplayer", "-slave", "-wid", NULL,
+		"-quiet", "-idle", "-framedrop", "-softvol",
+		"-softvol-max", "200", "-identify", "-noconsolecontrols",
+		"-nomouseinput", NULL };
 	GError * error = NULL;
 
-	argv[3] = wid;
+	argv[4] = wid;
 	_player_reset(player, NULL);
 	snprintf(wid, sizeof(wid), "%u", gtk_socket_get_id(GTK_SOCKET(
 					player->view_window)));
@@ -1677,7 +1681,7 @@ static gboolean _player_start(Player * player)
 			exit(_player_error("dup2", 2));
 		if(dup2(player->fd[0][1], 1) == -1)
 			exit(_player_error("dup2", 2));
-		execvp(argv[0], argv);
+		execv(argv[0], &argv[1]);
 		exit(_player_error(argv[0], 2));
 	}
 	close(player->fd[0][1]);
