@@ -582,7 +582,7 @@ void player_set_fullscreen(Player * player, gboolean fullscreen)
 /* player_set_progress */
 void player_set_progress(Player * player, gdouble progress)
 {
-	char buf[32];
+	char buf[48];
 	int len;
 
 	if(player->progress_ignore != 0)
@@ -590,7 +590,8 @@ void player_set_progress(Player * player, gdouble progress)
 	if(progress < 0)
 		/* XXX hack */
 		progress = gtk_range_get_value(GTK_RANGE(player->progress));
-	len = snprintf(buf, sizeof(buf), "%s %.1lf %d\n", "seek", progress, 1);
+	len = snprintf(buf, sizeof(buf), "%s %.1lf %d\n", "pausing_keep seek",
+			progress, 1);
 	_player_command(player, buf, len);
 }
 
@@ -1866,6 +1867,8 @@ static void _read_parse(Player * player, char const * buf)
 	}
 	else if(sscanf(buf, "ID_LENGTH=%lf\n", &db) == 1)
 		player->length = db;
+	else if(sscanf(buf, "ID_SEEKABLE=%u\n", &u32) == 1)
+		gtk_widget_set_sensitive(player->progress, u32 ? TRUE : FALSE);
 	else if(sscanf(buf, "ID_VIDEO_ASPECT=%lf\n", &db) == 1)
 		player->video_aspect = db;
 	else if(sscanf(buf, "ID_VIDEO_BITRATE=%u\n", &u32) == 1)
