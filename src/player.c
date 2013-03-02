@@ -103,6 +103,9 @@ struct _Player
 #endif
 	GtkWidget * view;
 	GtkWidget * view_window;
+	GtkWidget * progress;
+	int progress_ignore;
+	GtkWidget * progress_length;
 	GtkToolItem * tb_previous;
 	GtkToolItem * tb_rewind;
 	GtkToolItem * tb_play;
@@ -110,8 +113,6 @@ struct _Player
 	GtkToolItem * tb_stop;
 	GtkToolItem * tb_forward;
 	GtkToolItem * tb_next;
-	GtkWidget * progress;
-	int progress_ignore;
 #if GTK_CHECK_VERSION(2, 12, 0)
 	GtkWidget * tb_volume;
 #endif
@@ -413,6 +414,11 @@ Player * player_new(void)
 	player->progress_ignore = 0;
 	_player_set_progress(player, 0);
 	gtk_container_add(GTK_CONTAINER(toolitem), player->progress);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
+	/* length */
+	toolitem = gtk_tool_item_new();
+	player->progress_length = gtk_label_new("00:00:00");
+	gtk_container_add(GTK_CONTAINER(toolitem), player->progress_length);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
 	gtk_box_pack_end(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
 	gtk_widget_show_all(player->window);
@@ -1426,6 +1432,9 @@ static void _player_set_progress(Player * player, unsigned int progress)
 	player->progress_ignore++;
 	gtk_range_set_value(GTK_RANGE(player->progress), fraction);
 	player->progress_ignore--;
+	if(progress == 0)
+		gtk_label_set_text(GTK_LABEL(player->progress_length),
+				"00:00:00");
 }
 
 
@@ -1774,6 +1783,8 @@ static void _read_parse(Player * player, char const * buf)
 	unsigned int u32;
 	gdouble db;
 	char str[256];
+	time_t t;
+	struct tm tm;
 
 	/* FIXME right-trim the meta-data (whitespaces) */
 	if(sscanf(buf, "ANS_META_ALBUM='%255[^'\n]\n", str) == 1)
@@ -1813,6 +1824,13 @@ static void _read_parse(Player * player, char const * buf)
 	}
 	else if(sscanf(buf, "ANS_PERCENT_POSITION=%u\n", &u32) == 1)
 		_player_set_progress(player, u32);
+	else if(sscanf(buf, "ANS_TIME_POSITION=%lf\n", &db) == 1)
+	{
+		t = db;
+		gmtime_r(&t, &tm);
+		strftime(str, sizeof(str), "%H:%M:%S", &tm);
+		gtk_label_set_text(GTK_LABEL(player->progress_length), str);
+	}
 	else if(sscanf(buf, "ID_AUDIO_BITRATE=%u\n", &u32) == 1)
 		player->audio_bitrate = u32;
 	else if(sscanf(buf, "ID_AUDIO_CODEC=%255[^\n]", str) == 1)
@@ -1878,7 +1896,8 @@ static void _read_parse(Player * player, char const * buf)
 static gboolean _command_timeout(gpointer data)
 {
 	Player * player = data;
-	static const char cmd[] = "pausing_keep get_percent_pos\n";
+	static const char cmd[] = "pausing_keep get_time_pos\n"
+		"pausing_keep get_percent_pos\n";
 
 	_player_command(player, cmd, sizeof(cmd) - 1);
 	return TRUE;
