@@ -111,6 +111,7 @@ struct _Player
 	GtkToolItem * tb_forward;
 	GtkToolItem * tb_next;
 	GtkWidget * progress;
+	int progress_ignore;
 #if GTK_CHECK_VERSION(2, 12, 0)
 	GtkWidget * tb_volume;
 #endif
@@ -409,6 +410,7 @@ Player * player_new(void)
 	gtk_scale_set_draw_value(GTK_SCALE(player->progress), FALSE);
 	g_signal_connect_swapped(player->progress, "value-changed", G_CALLBACK(
 				on_progress_changed), player);
+	player->progress_ignore = 0;
 	_player_set_progress(player, 0);
 	gtk_container_add(GTK_CONTAINER(toolitem), player->progress);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
@@ -577,6 +579,8 @@ void player_set_progress(Player * player, gdouble progress)
 	char buf[32];
 	int len;
 
+	if(player->progress_ignore != 0)
+		return;
 	if(progress < 0)
 		/* XXX hack */
 		progress = gtk_range_get_value(GTK_RANGE(player->progress));
@@ -1419,7 +1423,9 @@ static void _player_set_progress(Player * player, unsigned int progress)
 	gdouble fraction;
 
 	fraction = (progress <= 100) ? progress : 100;
+	player->progress_ignore++;
 	gtk_range_set_value(GTK_RANGE(player->progress), fraction);
+	player->progress_ignore--;
 }
 
 
