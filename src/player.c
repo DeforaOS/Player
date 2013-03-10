@@ -1432,7 +1432,7 @@ static void _player_set_progress(Player * player, unsigned int progress)
 {
 	gdouble fraction;
 
-	fraction = (progress <= 100) ? progress : 100;
+	fraction = (progress <= 100) ? progress : 100.0;
 	player->progress_ignore++;
 	gtk_range_set_value(GTK_RANGE(player->progress), fraction);
 	player->progress_ignore--;
@@ -1827,7 +1827,11 @@ static void _read_parse(Player * player, char const * buf)
 		gtk_label_set_text(GTK_LABEL(player->me_year), str);
 	}
 	else if(sscanf(buf, "ANS_PERCENT_POSITION=%u\n", &u1) == 1)
+	{
 		_player_set_progress(player, u1);
+		if(u1 == 100)
+			player_next(player);
+	}
 	else if(sscanf(buf, "ANS_TIME_POSITION=%lf\n", &db) == 1)
 	{
 		t = db;
