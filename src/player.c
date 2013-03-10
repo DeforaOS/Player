@@ -279,7 +279,7 @@ static void _player_filters(GtkWidget * dialog);
 static void _player_message(Player * player, char const * message,
 		unsigned int duration);
 static void _player_reset(Player * player, char const * filename);
-static gboolean _player_start(Player * player);
+static int _player_start(Player * player);
 
 /* callbacks */
 static gboolean _command_read(GIOChannel * source, GIOCondition condition,
@@ -1473,15 +1473,16 @@ static int _player_command(Player * player, char const * cmd, size_t cmd_len)
 		fputs("player: mplayer not running\n", stderr);
 		if(player->timeout_id != 0)
 			g_source_remove(player->timeout_id);
-		g_timeout_add(1000, _command_on_timeout, player);
-		return 1;
+		player->timeout_id = g_timeout_add(1000, _command_on_timeout,
+				player);
+		return -1;
 	}
 #ifdef DEBUG
 	fprintf(stderr, "%s%d%s\"%s\"\n", "DEBUG: pid ", player->pid,
 			": write ", cmd);
 #endif
 	if((p = realloc(player->buf, player->buf_len + cmd_len)) == NULL)
-		return _player_error("malloc", 1);
+		return -_player_error("malloc", 1);
 	player->buf = p;
 	memcpy(&p[player->buf_len], cmd, cmd_len);
 	player->buf_len += cmd_len;
@@ -1495,7 +1496,10 @@ static gboolean _command_on_timeout(gpointer data)
 {
 	Player * player = data;
 
-	return _player_start(player);
+	if(_player_start(player) != 0)
+		return TRUE;
+	player->timeout_id = 0;
+	return FALSE;
 }
 
 
@@ -1665,8 +1669,9 @@ static void _player_reset(Player * player, char const * filename)
 
 
 /* player_start */
-static gboolean _player_start(Player * player)
+static int _player_start(Player * player)
 {
+	int ret;
 	char const buf[] = "pausing loadfile " PLAYER_SPLASH " 0\nframe_step\n";
 	char wid[16];
 	char * argv[] = { BINDIR "/mplayer", "mplayer", "-slave", "-wid", NULL,
@@ -1680,15 +1685,9 @@ static gboolean _player_start(Player * player)
 	snprintf(wid, sizeof(wid), "%u", gtk_socket_get_id(GTK_SOCKET(
 					player->view_window)));
 	if(pipe(player->fd[0]) != 0 || pipe(player->fd[1]) != 0)
-	{
-		player_error(player, strerror(errno), 0);
-		return FALSE;
-	}
+		return -player_error(player, strerror(errno), 1);
 	if((player->pid = fork()) == -1)
-	{
-		player_error(player, strerror(errno), 0);
-		return FALSE;
-	}
+		return -player_error(player, strerror(errno), 1);
 	if(player->pid == 0) /* child */
 	{
 		close(player->fd[0][0]);
@@ -1721,9 +1720,9 @@ static gboolean _player_start(Player * player)
 		g_error_free(error);
 	}
 	g_io_channel_set_buffered(player->channel[1], FALSE);
-	_player_command(player, buf, sizeof(buf) - 1);
+	ret = _player_command(player, buf, sizeof(buf) - 1);
 	player->paused = 1;
-	return FALSE;
+	return ret;
 }
 
 
