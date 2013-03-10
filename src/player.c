@@ -599,6 +599,9 @@ void player_set_progress(Player * player, gdouble progress)
 /* player_set_size */
 void player_set_size(Player * player, int width, int height)
 {
+#ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s(%d, %d)\n", __func__, width, height);
+#endif
 	if(width < 0)
 		width = player->width;
 	if(height < 0)
@@ -1780,7 +1783,8 @@ static gboolean _command_read(GIOChannel * source, GIOCondition condition,
 
 static void _read_parse(Player * player, char const * buf)
 {
-	unsigned int u32;
+	unsigned int u1;
+	unsigned int u2;
 	gdouble db;
 	char str[256];
 	time_t t;
@@ -1822,8 +1826,8 @@ static void _read_parse(Player * player, char const * buf)
 		str[sizeof(str) - 1] = '\0';
 		gtk_label_set_text(GTK_LABEL(player->me_year), str);
 	}
-	else if(sscanf(buf, "ANS_PERCENT_POSITION=%u\n", &u32) == 1)
-		_player_set_progress(player, u32);
+	else if(sscanf(buf, "ANS_PERCENT_POSITION=%u\n", &u1) == 1)
+		_player_set_progress(player, u1);
 	else if(sscanf(buf, "ANS_TIME_POSITION=%lf\n", &db) == 1)
 	{
 		t = db;
@@ -1831,8 +1835,10 @@ static void _read_parse(Player * player, char const * buf)
 		strftime(str, sizeof(str), "%H:%M:%S", &tm);
 		gtk_label_set_text(GTK_LABEL(player->progress_length), str);
 	}
-	else if(sscanf(buf, "ID_AUDIO_BITRATE=%u\n", &u32) == 1)
-		player->audio_bitrate = u32;
+	else if(sscanf(buf, "ANS_VIDEO_RESOLUTION='%u x %u'\n", &u1, &u2) == 2)
+		player_set_size(player, u1, u2);
+	else if(sscanf(buf, "ID_AUDIO_BITRATE=%u\n", &u1) == 1)
+		player->audio_bitrate = u1;
 	else if(sscanf(buf, "ID_AUDIO_CODEC=%255[^\n]", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
@@ -1840,38 +1846,38 @@ static void _read_parse(Player * player, char const * buf)
 			free(player->audio_codec);
 		player->audio_codec = strdup(str);
 	}
-	else if(sscanf(buf, "ID_AUDIO_NCH=%u\n", &u32) == 1)
-		player->audio_channels = u32;
-	else if(sscanf(buf, "ID_AUDIO_RATE=%u\n", &u32) == 1)
-		player->audio_rate = u32;
-	else if(sscanf(buf, "ID_CLIP_INFO_NAME%u=%255s", &u32, str) == 2)
+	else if(sscanf(buf, "ID_AUDIO_NCH=%u\n", &u1) == 1)
+		player->audio_channels = u1;
+	else if(sscanf(buf, "ID_AUDIO_RATE=%u\n", &u1) == 1)
+		player->audio_rate = u1;
+	else if(sscanf(buf, "ID_CLIP_INFO_NAME%u=%255s", &u1, str) == 2)
 	{
 		str[sizeof(str) - 1] = '\0';
 		if(strcmp(str, "Album") == 0)
-			player->album = u32;
+			player->album = u1;
 		else if(strcmp(str, "Artist") == 0)
-			player->artist = u32;
+			player->artist = u1;
 		else if(strcmp(str, "Title") == 0)
-			player->title = u32;
+			player->title = u1;
 	}
-	else if(sscanf(buf, "ID_CLIP_INFO_VALUE%u=%255[^\n]", &u32, str) == 2)
+	else if(sscanf(buf, "ID_CLIP_INFO_VALUE%u=%255[^\n]", &u1, str) == 2)
 	{
 		str[sizeof(str) - 1] = '\0';
-		if(player->album >= 0 && (unsigned)player->album == u32)
+		if(player->album >= 0 && (unsigned)player->album == u1)
 			_player_set_metadata(player, PL_COL_ALBUM, str);
-		else if(player->artist >= 0 && (unsigned)player->artist == u32)
+		else if(player->artist >= 0 && (unsigned)player->artist == u1)
 			_player_set_metadata(player, PL_COL_ARTIST, str);
-		else if(player->title >= 0 && (unsigned)player->title == u32)
+		else if(player->title >= 0 && (unsigned)player->title == u1)
 			_player_set_metadata(player, PL_COL_TITLE, str);
 	}
 	else if(sscanf(buf, "ID_LENGTH=%lf\n", &db) == 1)
 		player->length = db;
-	else if(sscanf(buf, "ID_SEEKABLE=%u\n", &u32) == 1)
-		gtk_widget_set_sensitive(player->progress, u32 ? TRUE : FALSE);
+	else if(sscanf(buf, "ID_SEEKABLE=%u\n", &u1) == 1)
+		gtk_widget_set_sensitive(player->progress, u1 ? TRUE : FALSE);
 	else if(sscanf(buf, "ID_VIDEO_ASPECT=%lf\n", &db) == 1)
 		player->video_aspect = db;
-	else if(sscanf(buf, "ID_VIDEO_BITRATE=%u\n", &u32) == 1)
-		player->video_bitrate = u32;
+	else if(sscanf(buf, "ID_VIDEO_BITRATE=%u\n", &u1) == 1)
+		player->video_bitrate = u1;
 	else if(sscanf(buf, "ID_VIDEO_CODEC=%255[^\n]", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
@@ -1881,12 +1887,12 @@ static void _read_parse(Player * player, char const * buf)
 	}
 	else if(sscanf(buf, "ID_VIDEO_FPS=%lf\n", &db) == 1)
 		player->video_fps = db;
-	else if(sscanf(buf, "ID_VIDEO_HEIGHT=%u\n", &u32) == 1)
-		player_set_size(player, -1, u32);
-	else if(sscanf(buf, "ID_VIDEO_RATE=%u\n", &u32) == 1)
-		player->video_rate = u32;
-	else if(sscanf(buf, "ID_VIDEO_WIDTH=%u\n", &u32) == 1)
-		player_set_size(player, u32, -1);
+	else if(sscanf(buf, "ID_VIDEO_HEIGHT=%u\n", &u1) == 1)
+		player_set_size(player, -1, u1);
+	else if(sscanf(buf, "ID_VIDEO_RATE=%u\n", &u1) == 1)
+		player->video_rate = u1;
+	else if(sscanf(buf, "ID_VIDEO_WIDTH=%u\n", &u1) == 1)
+		player_set_size(player, u1, -1);
 #ifdef DEBUG
 	else
 		fprintf(stderr, "DEBUG: unknown output \"%s\"\n", buf);
