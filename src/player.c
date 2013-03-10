@@ -740,12 +740,15 @@ void player_next(Player * player)
 	GtkTreeModel * model = GTK_TREE_MODEL(player->pl_store);
 	GtkTreePath * path;
 	GtkTreeIter iter;
+	gboolean res;
 
 	if(player->current == NULL)
 		return;
 	if((path = gtk_tree_row_reference_get_path(player->current)) == NULL)
 		return;
-	if(gtk_tree_model_get_iter(model, &iter, path) != TRUE)
+	res = gtk_tree_model_get_iter(model, &iter, path);
+	gtk_tree_path_free(path);
+	if(res != TRUE)
 		return;
 	if(gtk_tree_model_iter_next(model, &iter) != TRUE)
 		return;
@@ -1078,15 +1081,37 @@ void player_playlist_play_selected(Player * player)
 /* player_playlist_remove_selection */
 void player_playlist_remove_selection(Player * player)
 {
+	GtkTreeModel * model = GTK_TREE_MODEL(player->pl_store);
 	GtkTreeSelection * selection;
 	GList * rows;
+	GList * l;
+	GtkTreePath * path;
+	GtkTreeIter iter;
+	gboolean res;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(player->pl_view));
 	if((rows = gtk_tree_selection_get_selected_rows(selection, NULL))
 			== NULL)
 		return;
-	/* FIXME really implement */
-	g_list_foreach(rows, (GFunc)gtk_tree_path_free, NULL);
+	/* convert the paths to references */
+	for(l = rows; l != NULL; l = l->next)
+	{
+		path = l->data;
+		l->data = gtk_tree_row_reference_new(model, path);
+		gtk_tree_path_free(path);
+	}
+	/* remove the references */
+	for(l = rows; l != NULL; l = l->next)
+	{
+		if((path = gtk_tree_row_reference_get_path(l->data)) == NULL)
+			continue;
+		res = gtk_tree_model_get_iter(model, &iter, path);
+		gtk_tree_path_free(path);
+		if(res == TRUE)
+			gtk_list_store_remove(player->pl_store, &iter);
+	}
+	/* free the references */
+	g_list_foreach(rows, (GFunc)gtk_tree_row_reference_free, NULL);
 	g_list_free(rows);
 }
 
