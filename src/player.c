@@ -412,7 +412,6 @@ Player * player_new(void)
 	g_signal_connect_swapped(player->progress, "value-changed", G_CALLBACK(
 				on_progress_changed), player);
 	player->progress_ignore = 0;
-	_player_set_progress(player, 0);
 	gtk_container_add(GTK_CONTAINER(toolitem), player->progress);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
 	/* length */
@@ -421,6 +420,7 @@ Player * player_new(void)
 	gtk_container_add(GTK_CONTAINER(toolitem), player->progress_length);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
 	gtk_box_pack_end(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
+	_player_set_progress(player, 0);
 	gtk_widget_show_all(player->window);
 	/* playlist */
 	/* FIXME make it dockable */
