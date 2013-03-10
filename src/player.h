@@ -72,6 +72,7 @@ void player_playlist_clear(Player * player);
 void player_playlist_open(Player * player, char const * filename);
 void player_playlist_open_dialog(Player * player);
 void player_playlist_play_selected(Player * player);
+void player_playlist_remove_selection(Player * player);
 void player_playlist_save_as_dialog(Player * player);
 
 /* playback */

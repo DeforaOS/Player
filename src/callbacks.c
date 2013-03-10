@@ -363,7 +363,9 @@ void on_playlist_load(gpointer data)
 /* on_playlist_remove */
 void on_playlist_remove(gpointer data)
 {
-	/* FIXME implement */
+	Player * player = data;
+
+	player_playlist_remove_selection(player);
 }
 
 

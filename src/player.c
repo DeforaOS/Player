@@ -1075,6 +1075,22 @@ void player_playlist_play_selected(Player * player)
 }
 
 
+/* player_playlist_remove_selection */
+void player_playlist_remove_selection(Player * player)
+{
+	GtkTreeSelection * selection;
+	GList * rows;
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(player->pl_view));
+	if((rows = gtk_tree_selection_get_selected_rows(selection, NULL))
+			== NULL)
+		return;
+	/* FIXME really implement */
+	g_list_foreach(rows, (GFunc)gtk_tree_path_free, NULL);
+	g_list_free(rows);
+}
+
+
 /* player_playlist_save_as_dialog */
 void player_playlist_save_as_dialog(Player * player)
 {
