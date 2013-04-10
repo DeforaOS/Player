@@ -52,9 +52,9 @@ distclean: clean
 
 install: $(TARGETS)
 	$(MKDIR) $(DESTDIR)$(BINDIR)
-	$(INSTALL) -m 0755 -- player $(DESTDIR)$(BINDIR)/player
+	$(INSTALL) -m 0755 player $(DESTDIR)$(BINDIR)/player
 	$(MKDIR) $(DESTDIR)$(BINDIR)
-	$(INSTALL) -m 0755 -- playerctl $(DESTDIR)$(BINDIR)/playerctl
+	$(INSTALL) -m 0755 playerctl $(DESTDIR)$(BINDIR)/playerctl
 
 uninstall:
 	$(RM) -- $(DESTDIR)$(BINDIR)/player

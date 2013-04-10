@@ -15,7 +15,7 @@ distclean: clean
 
 install:
 	$(MKDIR) $(DESTDIR)$(PREFIX)/include/Desktop
-	$(INSTALL) -m 0644 -- Player.h $(DESTDIR)$(PREFIX)/include/Desktop/Player.h
+	$(INSTALL) -m 0644 Player.h $(DESTDIR)$(PREFIX)/include/Desktop/Player.h
 
 uninstall:
 	$(RM) -- $(DESTDIR)$(PREFIX)/include/Desktop/Player.h
