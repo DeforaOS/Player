@@ -437,7 +437,8 @@ Player * player_new(void)
 			G_TYPE_UINT,	/* track number */
 			G_TYPE_STRING,	/* artist */
 			G_TYPE_STRING,	/* album */
-			G_TYPE_STRING);	/* name */
+			G_TYPE_STRING,	/* title */
+			G_TYPE_STRING);	/* duration */
 	widget = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widget),
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -453,6 +454,7 @@ Player * player_new(void)
 	_new_column_text(player->pl_view, _("Artist"), PL_COL_ARTIST);
 	_new_column_text(player->pl_view, _("Album"), PL_COL_ALBUM);
 	_new_column_text(player->pl_view, _("Title"), PL_COL_TITLE);
+	_new_column_text(player->pl_view, _("Duration"), PL_COL_DURATION);
 	g_signal_connect_swapped(G_OBJECT(player->pl_view), "row-activated",
 			G_CALLBACK(on_playlist_activated), player);
 	gtk_container_add(GTK_CONTAINER(widget), player->pl_view);
@@ -950,7 +952,8 @@ void player_playlist_add(Player * player, char const * filename)
 			PL_COL_FILENAME, filename,
 			PL_COL_ALBUM, _("Unknown album"),
 			PL_COL_ARTIST, _("Unknown artist"),
-			PL_COL_TITLE, _("Unknown title"), -1);
+			PL_COL_TITLE, _("Unknown title"),
+			PL_COL_DURATION, _("Unknown"), -1);
 }
 
 
@@ -1001,7 +1004,8 @@ void player_playlist_add_url(Player * player, char const * url)
 			PL_COL_FILENAME, url,
 			PL_COL_ALBUM, _("Unknown album"),
 			PL_COL_ARTIST, _("Unknown artist"),
-			PL_COL_TITLE, _("Unknown title"), -1);
+			PL_COL_TITLE, _("Unknown title"),
+			PL_COL_DURATION, _("Unknown"), -1);
 }
 
 
