@@ -147,6 +147,20 @@ struct _Player
 #define PLAYER_ICON_NAME	"multimedia"
 #define PLAYER_SPLASH		DATADIR "/" PACKAGE "/splash.png"
 
+enum
+{
+	PL_COL_ENABLED = 0,
+	PL_COL_ICON,
+	PL_COL_FILENAME,
+	PL_COL_TRACK,
+	PL_COL_ARTIST,
+	PL_COL_ALBUM,
+	PL_COL_TITLE,
+	PL_COL_DURATION,
+	PL_NUM_COLS
+};
+# define PL_LAST PL_NUM_COLS
+
 static const DesktopAccel _player_accel[] =
 {
 	{ G_CALLBACK(on_fullscreen), GDK_CONTROL_MASK, GDK_KEY_F },
@@ -1918,6 +1932,7 @@ static void _read_parse(Player * player, char const * buf)
 			_player_set_metadata(player, PL_COL_ARTIST, str);
 		else if(player->title >= 0 && (unsigned)player->title == u1)
 			_player_set_metadata(player, PL_COL_TITLE, str);
+		/* FIXME also update the duration */
 	}
 	else if(sscanf(buf, "ID_LENGTH=%lf\n", &db) == 1)
 		player->length = db;

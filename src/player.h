@@ -25,20 +25,6 @@
 /* types */
 typedef struct _Player Player;
 
-enum
-{
-	PL_COL_ENABLED = 0,
-	PL_COL_ICON,
-	PL_COL_FILENAME,
-	PL_COL_TRACK,
-	PL_COL_ARTIST,
-	PL_COL_ALBUM,
-	PL_COL_TITLE,
-	PL_COL_DURATION,
-	PL_NUM_COLS
-};
-# define PL_LAST PL_NUM_COLS
-
 
 /* functions */
 Player * player_new(void);
