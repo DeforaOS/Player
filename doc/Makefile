@@ -1,4 +1,4 @@
-TARGETS	= player.1 player.html playerctl.1 playerctl.html
+TARGETS	= index.html player.1 player.html playerctl.1 playerctl.html
 PREFIX	= /usr/local
 DESTDIR	=
 RM	= rm -f
@@ -8,6 +8,9 @@ INSTALL	= install
 
 
 all: $(TARGETS)
+
+index.html: index.xml index.xsl player.xml playerctl.xml
+	./docbook.sh -P "$(PREFIX)" -- "index.html"
 
 player.1: player.xml
 	./docbook.sh -P "$(PREFIX)" -- "player.1"
@@ -22,7 +25,7 @@ playerctl.html: playerctl.xml
 	./docbook.sh -P "$(PREFIX)" -- "playerctl.html"
 
 clean:
-	$(RM) -- $(player.1_OBJS) $(player.html_OBJS) $(playerctl.1_OBJS) $(playerctl.html_OBJS)
+	$(RM) -- $(index.html_OBJS) $(player.1_OBJS) $(player.html_OBJS) $(playerctl.1_OBJS) $(playerctl.html_OBJS)
 	./docbook.sh -c -P "$(PREFIX)" -- "playerctl.html"
 
 distclean: clean

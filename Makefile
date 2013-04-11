@@ -27,6 +27,8 @@ dist:
 		$(PACKAGE)-$(VERSION)/data/project.conf \
 		$(PACKAGE)-$(VERSION)/doc/Makefile \
 		$(PACKAGE)-$(VERSION)/doc/docbook.sh \
+		$(PACKAGE)-$(VERSION)/doc/index.xml \
+		$(PACKAGE)-$(VERSION)/doc/index.xsl \
 		$(PACKAGE)-$(VERSION)/doc/player.xml \
 		$(PACKAGE)-$(VERSION)/doc/playerctl.xml \
 		$(PACKAGE)-$(VERSION)/doc/project.conf \
