@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Media player
-Comment=A media player based on MPlayer
+Comment=Plays audio and video files
 Exec=player
 Icon=multimedia
 Type=Application
