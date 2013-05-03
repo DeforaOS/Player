@@ -350,6 +350,7 @@ Player * player_new(void)
 	pango_font_description_set_weight(player->bold, PANGO_WEIGHT_BOLD);
 	player->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_add_accel_group(GTK_WINDOW(player->window), group);
+	g_object_unref(group);
 	gtk_window_set_default_size(GTK_WINDOW(player->window), 512, 384);
 #if GTK_CHECK_VERSION(2, 6, 0)
 	gtk_window_set_icon_name(GTK_WINDOW(player->window), PLAYER_ICON_NAME);
