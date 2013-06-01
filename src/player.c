@@ -673,6 +673,8 @@ void player_about(Player * player)
 	desktop_about_dialog_set_translator_credits(player->ab_window,
 			_("translator-credits"));
 	desktop_about_dialog_set_version(player->ab_window, VERSION);
+	desktop_about_dialog_set_website(player->ab_window,
+			"http://www.defora.org/");
 	g_signal_connect_swapped(G_OBJECT(player->ab_window), "delete-event",
 			G_CALLBACK(_about_on_closex), player);
 	gtk_widget_show(player->ab_window);
