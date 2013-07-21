@@ -700,13 +700,12 @@ int player_error(Player * player, char const * message, int ret)
 
 	dialog = gtk_message_dialog_new(GTK_WINDOW(player->window),
 			GTK_DIALOG_DESTROY_WITH_PARENT,
-			GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "%s",
+			GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
 # if GTK_CHECK_VERSION(2, 6, 0)
-			_("Error"));
+			"%s", _("Error"));
 	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
-			"%s",
 # endif
-			message);
+			"%s", message);
 	gtk_window_set_title(GTK_WINDOW(dialog), _("Error"));
 	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(
 				gtk_widget_destroy), NULL);
@@ -1384,10 +1383,20 @@ static void _properties_window(Player * player)
 	GtkWidget * hbox;
 
 	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	player->me_window = gtk_dialog_new_with_buttons(NULL,
-			GTK_WINDOW(player->window),
+	player->me_window = gtk_message_dialog_new(GTK_WINDOW(player->window),
 			GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-			GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE, NULL);
+			GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
+#if GTK_CHECK_VERSION(2, 6, 0)
+			"%s", _("Properties"));
+	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(
+				player->me_window),
+#endif
+			"");
+#if GTK_CHECK_VERSION(2, 10, 0)
+	gtk_message_dialog_set_image(GTK_MESSAGE_DIALOG(player->me_window),
+			gtk_image_new_from_stock(GTK_STOCK_PROPERTIES,
+				GTK_ICON_SIZE_DIALOG));
+#endif
 	gtk_window_set_default_size(GTK_WINDOW(player->me_window), 300, 200);
 #if GTK_CHECK_VERSION(2, 14, 0)
 	vbox = gtk_dialog_get_content_area(GTK_DIALOG(player->me_window));
