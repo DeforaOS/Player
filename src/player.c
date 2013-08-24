@@ -1011,8 +1011,12 @@ void player_playlist_add_url(Player * player, char const * url)
 	char const file[] = "file:/";
 
 	if(strncmp(file, url, sizeof(file) - 1) == 0)
-		/* FIXME URL-decode (and left-trim all slashes after the 1st */
+	{
 		url = &url[sizeof(file) - 2];
+		/* left-trim all slashes */
+		for(; url[1] == '/'; url++);
+		/* FIXME URL-decode */
+	}
 	/* FIXME fetch the actual artists/albums/titles */
 #if GTK_CHECK_VERSION(2, 6, 0)
 	gtk_list_store_insert_with_values(player->pl_store, &iter, -1,
