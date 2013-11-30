@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Media player
 Comment=Plays audio and video files
+TryExec=player
 Exec=player
 Icon=multimedia
 Type=Application
