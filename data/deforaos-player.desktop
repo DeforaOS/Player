@@ -2,7 +2,7 @@
 Name=Media player
 Comment=Plays audio and video files
 TryExec=player
-Exec=player
+Exec=player %U
 Icon=multimedia
 Type=Application
 Categories=AudioVideo;Player;Video;GTK;

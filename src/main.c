@@ -81,6 +81,7 @@ int main(int argc, char * argv[])
 	if((player = player_new()) == NULL)
 		return 2;
 	if(optind < argc)
+		/* FIXME might be an URL */
 		player_open(player, argv[optind]);
 	for(i = optind + 1; i < argc; i++)
 		player_playlist_add(player, argv[i]);
