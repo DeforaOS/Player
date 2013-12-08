@@ -27,6 +27,9 @@
 #define _(string) gettext(string)
 
 /* constants */
+#ifndef PROGNAME
+# define PROGNAME	"player"
+#endif
 #ifndef PREFIX
 # define PREFIX		"/usr/local"
 #endif
@@ -48,7 +51,7 @@ Player * player;
 /* usage */
 static int _usage(void)
 {
-	fputs(_("Usage: player [file...]\n"), stderr);
+	fprintf(stderr, _("Usage: %s [filename...]\n"), PROGNAME);
 	return 1;
 }
 
@@ -98,7 +101,7 @@ static void _main_signal(void)
 	sa.sa_handler = _signal_handler;
 	sigfillset(&sa.sa_mask);
 	if(sigaction(SIGCHLD, &sa, NULL) == -1)
-		fputs("player: SIGCHLD: Not handled\n", stderr);
+		fputs(PROGNAME ": SIGCHLD: Not handled\n", stderr);
 }
 
 static void _signal_handler(int signum)
@@ -117,7 +120,7 @@ static void _signal_handler(int signum)
 	}
 	if(pid == 0)
 		return;
-	fputs("player: ", stderr);
+	fputs(PROGNAME ": ", stderr);
 	if(WIFEXITED(status))
 		fprintf(stderr, "%s%d%s%u\n", "child ", pid,
 				": exited with code ", WEXITSTATUS(status));
