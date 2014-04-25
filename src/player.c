@@ -1,6 +1,6 @@
 /* $Id$ */
 static char const _copyright[] =
-"Copyright © 2006-2013 Pierre Pronchery <khorben@defora.org>";
+"Copyright © 2006-2014 Pierre Pronchery <khorben@defora.org>";
 /* This file is part of DeforaOS Desktop Player */
 static char const _license[] =
 "This program is free software: you can redistribute it and/or modify\n"
@@ -607,7 +607,7 @@ void player_set_progress(Player * player, gdouble progress)
 	if(progress < 0)
 		/* XXX hack */
 		progress = gtk_range_get_value(GTK_RANGE(player->progress));
-	len = snprintf(buf, sizeof(buf), "%s %.1lf %d\n", "pausing_keep seek",
+	len = snprintf(buf, sizeof(buf), "%s %.1f %d\n", "pausing_keep seek",
 			progress, 1);
 	_player_command(player, buf, len);
 }
