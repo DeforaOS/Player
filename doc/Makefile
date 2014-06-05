@@ -15,13 +15,13 @@ index.html: index.xml index.xsl player.xml playerctl.xml
 player.1: player.xml
 	./docbook.sh -P "$(PREFIX)" -- "player.1"
 
-player.html: player.xml
+player.html: manual.css.xml player.css.xml player.xml
 	./docbook.sh -P "$(PREFIX)" -- "player.html"
 
 playerctl.1: playerctl.xml
 	./docbook.sh -P "$(PREFIX)" -- "playerctl.1"
 
-playerctl.html: playerctl.xml
+playerctl.html: manual.css.xml playerctl.css.xml playerctl.xml
 	./docbook.sh -P "$(PREFIX)" -- "playerctl.html"
 
 clean:

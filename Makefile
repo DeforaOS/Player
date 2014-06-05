@@ -29,7 +29,10 @@ dist:
 		$(PACKAGE)-$(VERSION)/doc/docbook.sh \
 		$(PACKAGE)-$(VERSION)/doc/index.xml \
 		$(PACKAGE)-$(VERSION)/doc/index.xsl \
+		$(PACKAGE)-$(VERSION)/doc/manual.css.xml \
+		$(PACKAGE)-$(VERSION)/doc/player.css.xml \
 		$(PACKAGE)-$(VERSION)/doc/player.xml \
+		$(PACKAGE)-$(VERSION)/doc/playerctl.css.xml \
 		$(PACKAGE)-$(VERSION)/doc/playerctl.xml \
 		$(PACKAGE)-$(VERSION)/doc/project.conf \
 		$(PACKAGE)-$(VERSION)/include/Player.h \
