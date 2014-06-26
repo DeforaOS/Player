@@ -359,7 +359,11 @@ Player * player_new(void)
 	gtk_widget_realize(player->window);
 	g_signal_connect_swapped(G_OBJECT(player->window), "delete-event",
 			G_CALLBACK(on_player_closex), player);
+#if GTK_CHECK_VERSION(3, 0, 0)
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#else
 	vbox = gtk_vbox_new(FALSE, 0);
+#endif
 	gtk_container_add(GTK_CONTAINER(player->window), vbox);
 	desktop_accel_create(_player_accel, player, group);
 #ifndef EMBEDDED
@@ -422,7 +426,13 @@ Player * player_new(void)
 	toolbar = gtk_toolbar_new();
 	toolitem = gtk_tool_item_new();
 	gtk_tool_item_set_expand(toolitem, TRUE);
+#if GTK_CHECK_VERSION(3, 0, 0)
+	/* FIXME seems to be causing trouble */
+	player->progress = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL,
+			0.0, 100.0, 0.1);
+#else
 	player->progress = gtk_hscale_new_with_range(0.0, 100.0, 0.1);
+#endif
 	gtk_scale_set_draw_value(GTK_SCALE(player->progress), FALSE);
 	g_signal_connect_swapped(player->progress, "value-changed", G_CALLBACK(
 				on_progress_changed), player);
@@ -443,7 +453,11 @@ Player * player_new(void)
 	gtk_window_set_title(GTK_WINDOW(player->pl_window), _("Playlist"));
 	g_signal_connect_swapped(G_OBJECT(player->pl_window), "delete-event",
 			G_CALLBACK(on_playlist_closex), player);
+#if GTK_CHECK_VERSION(3, 0, 0)
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#else
 	vbox = gtk_vbox_new(FALSE, 0);
+#endif
 	/* view */
 	player->pl_store = gtk_list_store_new(PL_NUM_COLS,
 			G_TYPE_BOOLEAN,	/* enabled */
@@ -474,7 +488,12 @@ Player * player_new(void)
 			G_CALLBACK(on_playlist_activated), player);
 	gtk_container_add(GTK_CONTAINER(widget), player->pl_view);
 	gtk_box_pack_start(GTK_BOX(vbox), widget, TRUE, TRUE, 0);
+#if GTK_CHECK_VERSION(3, 0, 0)
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	gtk_box_set_homogeneous(GTK_BOX(hbox), TRUE);
+#else
 	hbox = gtk_hbox_new(TRUE, 0);
+#endif
 	widget = gtk_button_new_from_stock(GTK_STOCK_OPEN);
 	g_signal_connect_swapped(G_OBJECT(widget), "clicked", G_CALLBACK(
 				on_playlist_load), player);
@@ -876,7 +895,11 @@ int player_open_url_dialog(Player * player)
 	vbox = GTK_DIALOG(dialog)->vbox;
 #endif
 	gtk_box_set_spacing(GTK_BOX(vbox), 4);
+#if GTK_CHECK_VERSION(3, 0, 0)
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#else
 	hbox = gtk_hbox_new(FALSE, 4);
+#endif
 	label = gtk_label_new(_("URL: "));
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
 	entry = gtk_entry_new();
@@ -1359,7 +1382,11 @@ static GtkWidget * _properties_label(Player * player, GtkSizeGroup * group,
 {
 	GtkWidget * hbox;
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#else
 	hbox = gtk_hbox_new(FALSE, 4);
+#endif
 	*widget = gtk_label_new(label);
 	gtk_widget_modify_font(*widget, player->bold);
 	gtk_misc_set_alignment(GTK_MISC(*widget), 0.0, 0.5);
