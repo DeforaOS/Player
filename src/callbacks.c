@@ -1,5 +1,5 @@
 /* $Id$ */
-/* Copyright (c) 2006-2013 Pierre Pronchery <khorben@defora.org> */
+/* Copyright (c) 2006-2014 Pierre Pronchery <khorben@defora.org> */
 /* This file is part of DeforaOS Desktop Player */
 /* This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,10 @@
 #include "player.h"
 #include "callbacks.h"
 #include "../config.h"
+
+#ifndef PROGNAME
+# define PROGNAME	"player"
+#endif
 
 
 /* macros */
@@ -198,7 +202,7 @@ void on_help_about(gpointer data)
 /* on_help_contents */
 void on_help_contents(gpointer data)
 {
-	desktop_help_contents(PACKAGE, "player");
+	desktop_help_contents(PACKAGE, PROGNAME);
 }
 
 
