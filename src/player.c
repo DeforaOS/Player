@@ -688,7 +688,7 @@ void player_about(Player * player)
 	desktop_about_dialog_set_logo_icon_name(player->ab_window,
 			PLAYER_ICON_NAME);
 	desktop_about_dialog_set_license(player->ab_window, _license);
-	desktop_about_dialog_set_name(player->ab_window, PACKAGE);
+	desktop_about_dialog_set_program_name(player->ab_window, PACKAGE);
 	desktop_about_dialog_set_translator_credits(player->ab_window,
 			_("translator-credits"));
 	desktop_about_dialog_set_version(player->ab_window, VERSION);
