@@ -41,6 +41,9 @@ static char const _license[] =
 #define N_(string) (string)
 
 /* constants */
+#ifndef PROGNAME
+# define PROGNAME	"player"
+#endif
 #ifndef PREFIX
 # define PREFIX		"/usr/local"
 #endif
@@ -288,7 +291,6 @@ static int _player_config_load(Player * player);
 static int _player_config_save(Player * player);
 
 static int _player_command(Player * player, char const * cmd, size_t cmd_len);
-static int _player_error(char const * message, int ret);
 static void _player_filters(GtkWidget * dialog);
 static void _player_message(Player * player, char const * message,
 		unsigned int duration);
@@ -572,7 +574,7 @@ void player_delete(Player * player)
 	{
 		if((res = waitpid(player->pid, &status, WNOHANG)) == -1)
 		{
-			_player_error("waitpid", 0);
+			player_error(NULL, "waitpid", 0);
 			break;
 		}
 		else if(res == 0)
@@ -709,14 +711,20 @@ static gboolean _about_on_closex(gpointer data)
 
 
 /* player_error */
+static int _error_text(char const * message, int ret);
+
 int player_error(Player * player, char const * message, int ret)
 {
 #if GTK_CHECK_VERSION(2, 18, 0)
+	if(player == NULL)
+		return _error_text(message, ret);
 	gtk_label_set_text(GTK_LABEL(player->infobar_label), message);
 	gtk_widget_show(player->infobar);
 #else
 	GtkWidget * dialog;
 
+	if(player == NULL)
+		return _error_text(message, ret);
 	dialog = gtk_message_dialog_new(GTK_WINDOW(player->window),
 			GTK_DIALOG_DESTROY_WITH_PARENT,
 			GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
@@ -730,6 +738,13 @@ int player_error(Player * player, char const * message, int ret)
 				gtk_widget_destroy), NULL);
 	gtk_dialog_run(GTK_DIALOG(dialog));
 #endif
+	return ret;
+}
+
+static int _error_text(char const * message, int ret)
+{
+	fputs(PROGNAME ": ", stderr);
+	perror(message);
 	return ret;
 }
 
@@ -911,7 +926,7 @@ int player_open_url_dialog(Player * player)
 	{
 		p = gtk_entry_get_text(GTK_ENTRY(entry));
 		if((url = strdup(p)) == NULL)
-			ret = -_player_error("strdup", 1);
+			ret = -player_error(NULL, "strdup", 1);
 	}
 	gtk_widget_destroy(dialog);
 	if(url == NULL)
@@ -1560,15 +1575,6 @@ static gboolean _player_config_get_boolean(Player * player,
 
 
 /* useful */
-/* player_error */
-static int _player_error(char const * message, int ret)
-{
-	fputs("player: ", stderr);
-	perror(message);
-	return ret;
-}
-
-
 /* player_command */
 static gboolean _command_on_timeout(gpointer data);
 
@@ -1578,7 +1584,7 @@ static int _player_command(Player * player, char const * cmd, size_t cmd_len)
 
 	if(player->pid == -1)
 	{
-		fputs("player: mplayer not running\n", stderr);
+		fputs(PROGNAME ": mplayer not running\n", stderr);
 		if(player->timeout_id != 0)
 			g_source_remove(player->timeout_id);
 		player->timeout_id = g_timeout_add(1000, _command_on_timeout,
@@ -1590,7 +1596,7 @@ static int _player_command(Player * player, char const * cmd, size_t cmd_len)
 			": write ", cmd);
 #endif
 	if((p = realloc(player->buf, player->buf_len + cmd_len)) == NULL)
-		return -_player_error("malloc", 1);
+		return -player_error(NULL, "malloc", 1);
 	player->buf = p;
 	memcpy(&p[player->buf_len], cmd, cmd_len);
 	player->buf_len += cmd_len;
@@ -1801,11 +1807,11 @@ static int _player_start(Player * player)
 		close(player->fd[0][0]);
 		close(player->fd[1][1]);
 		if(dup2(player->fd[1][0], 0) == -1)
-			exit(_player_error("dup2", 2));
+			exit(player_error(NULL, "dup2", 2));
 		if(dup2(player->fd[0][1], 1) == -1)
-			exit(_player_error("dup2", 2));
+			exit(player_error(NULL, "dup2", 2));
 		execv(argv[0], &argv[1]);
-		exit(_player_error(argv[0], 2));
+		exit(player_error(NULL, argv[0], 2));
 	}
 	close(player->fd[0][1]);
 	close(player->fd[1][0]);
