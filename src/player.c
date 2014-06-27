@@ -359,8 +359,8 @@ Player * player_new(void)
 #endif
 	gtk_window_set_title(GTK_WINDOW(player->window), _("Media player"));
 	gtk_widget_realize(player->window);
-	g_signal_connect_swapped(G_OBJECT(player->window), "delete-event",
-			G_CALLBACK(on_player_closex), player);
+	g_signal_connect_swapped(player->window, "delete-event", G_CALLBACK(
+				on_player_closex), player);
 #if GTK_CHECK_VERSION(3, 0, 0)
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 #else
@@ -399,7 +399,7 @@ Player * player_new(void)
 	/* view */
 	player->view_window = gtk_socket_new();
 	gtk_widget_modify_bg(player->view_window, GTK_STATE_NORMAL, &black);
-	g_signal_connect_swapped(G_OBJECT(player->view_window), "plug-removed",
+	g_signal_connect_swapped(player->view_window, "plug-removed",
 			G_CALLBACK(on_player_removed), player);
 	gtk_box_pack_start(GTK_BOX(vbox), player->view_window, TRUE, TRUE, 0);
 	/* playbar */
@@ -453,8 +453,8 @@ Player * player_new(void)
 	/* FIXME make it dockable */
 	player->pl_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(player->pl_window), _("Playlist"));
-	g_signal_connect_swapped(G_OBJECT(player->pl_window), "delete-event",
-			G_CALLBACK(on_playlist_closex), player);
+	g_signal_connect_swapped(player->pl_window, "delete-event", G_CALLBACK(
+				on_playlist_closex), player);
 #if GTK_CHECK_VERSION(3, 0, 0)
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 #else
@@ -486,8 +486,8 @@ Player * player_new(void)
 	_new_column_text(player->pl_view, _("Album"), PL_COL_ALBUM);
 	_new_column_text(player->pl_view, _("Title"), PL_COL_TITLE);
 	_new_column_text(player->pl_view, _("Duration"), PL_COL_DURATION);
-	g_signal_connect_swapped(G_OBJECT(player->pl_view), "row-activated",
-			G_CALLBACK(on_playlist_activated), player);
+	g_signal_connect_swapped(player->pl_view, "row-activated", G_CALLBACK(
+				on_playlist_activated), player);
 	gtk_container_add(GTK_CONTAINER(widget), player->pl_view);
 	gtk_box_pack_start(GTK_BOX(vbox), widget, TRUE, TRUE, 0);
 #if GTK_CHECK_VERSION(3, 0, 0)
@@ -497,19 +497,19 @@ Player * player_new(void)
 	hbox = gtk_hbox_new(TRUE, 0);
 #endif
 	widget = gtk_button_new_from_stock(GTK_STOCK_OPEN);
-	g_signal_connect_swapped(G_OBJECT(widget), "clicked", G_CALLBACK(
+	g_signal_connect_swapped(widget, "clicked", G_CALLBACK(
 				on_playlist_load), player);
 	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 4);
 	widget = gtk_button_new_from_stock(GTK_STOCK_SAVE);
-	g_signal_connect_swapped(G_OBJECT(widget), "clicked", G_CALLBACK(
+	g_signal_connect_swapped(widget, "clicked", G_CALLBACK(
 				on_playlist_save), player);
 	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 4);
 	widget = gtk_button_new_from_stock(GTK_STOCK_ADD);
-	g_signal_connect_swapped(G_OBJECT(widget), "clicked", G_CALLBACK(
+	g_signal_connect_swapped(widget, "clicked", G_CALLBACK(
 				on_playlist_add), player);
 	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 4);
 	widget = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
-	g_signal_connect_swapped(G_OBJECT(widget), "clicked", G_CALLBACK(
+	g_signal_connect_swapped(widget, "clicked", G_CALLBACK(
 				on_playlist_remove), player);
 	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 4);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 4);
@@ -696,8 +696,8 @@ void player_about(Player * player)
 	desktop_about_dialog_set_version(player->ab_window, VERSION);
 	desktop_about_dialog_set_website(player->ab_window,
 			"http://www.defora.org/");
-	g_signal_connect_swapped(G_OBJECT(player->ab_window), "delete-event",
-			G_CALLBACK(_about_on_closex), player);
+	g_signal_connect_swapped(player->ab_window, "delete-event", G_CALLBACK(
+				_about_on_closex), player);
 	gtk_widget_show(player->ab_window);
 }
 
@@ -734,8 +734,8 @@ int player_error(Player * player, char const * message, int ret)
 # endif
 			"%s", message);
 	gtk_window_set_title(GTK_WINDOW(dialog), _("Error"));
-	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(
-				gtk_widget_destroy), NULL);
+	g_signal_connect(dialog, "response", G_CALLBACK(gtk_widget_destroy),
+			NULL);
 	gtk_dialog_run(GTK_DIALOG(dialog));
 #endif
 	return ret;
