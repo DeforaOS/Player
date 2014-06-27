@@ -1781,7 +1781,7 @@ static int _player_start(Player * player)
 {
 	int ret;
 	char const buf[] = "pausing loadfile " PLAYER_SPLASH " 0\nframe_step\n";
-	char wid[16];
+	char wid[32];
 	char * argv[] = { BINDIR "/mplayer", "mplayer", "-slave", "-wid", NULL,
 		"-quiet", "-idle", "-framedrop", "-softvol",
 		"-softvol-max", "200", "-identify", "-noconsolecontrols",
@@ -1790,7 +1790,7 @@ static int _player_start(Player * player)
 
 	argv[4] = wid;
 	_player_reset(player, NULL);
-	snprintf(wid, sizeof(wid), "%u", gtk_socket_get_id(GTK_SOCKET(
+	snprintf(wid, sizeof(wid), "%lu", gtk_socket_get_id(GTK_SOCKET(
 					player->view_window)));
 	if(pipe(player->fd[0]) != 0 || pipe(player->fd[1]) != 0)
 		return -player_error(player, strerror(errno), 1);
