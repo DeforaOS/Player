@@ -1017,6 +1017,9 @@ void player_playlist_add(Player * player, char const * filename)
 {
 	GtkTreeIter iter;
 
+#ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s(\"%s\")\n", __func__, filename);
+#endif
 	/* FIXME fetch the actual artists/albums/titles */
 #if GTK_CHECK_VERSION(2, 6, 0)
 	gtk_list_store_insert_with_values(player->pl_store, &iter, -1,
@@ -1063,7 +1066,6 @@ void player_playlist_add_dialog(Player * player)
 /* player_playlist_add_url */
 void player_playlist_add_url(Player * player, char const * url)
 {
-	GtkTreeIter iter;
 	char const file[] = "file:/";
 	gchar * p = NULL;
 	GError * error = NULL;
@@ -1082,21 +1084,7 @@ void player_playlist_add_url(Player * player, char const * url)
 		}
 		url = p;
 	}
-#ifdef DEBUG
-	fprintf(stderr, "DEBUG: %s() \"%s\"\n", __func__, url);
-#endif
-	/* FIXME fetch the actual artists/albums/titles */
-#if GTK_CHECK_VERSION(2, 6, 0)
-	gtk_list_store_insert_with_values(player->pl_store, &iter, -1,
-#else
-	gtk_list_store_insert_after(player->pl_store, iter, NULL);
-	gtk_list_store_set(player->pl_store, iter,
-#endif
-			PL_COL_FILENAME, url,
-			PL_COL_ALBUM, _("Unknown album"),
-			PL_COL_ARTIST, _("Unknown artist"),
-			PL_COL_TITLE, _("Unknown title"),
-			PL_COL_DURATION, _("Unknown"), -1);
+	player_playlist_add(player, url);
 	g_free(p);
 }
 
