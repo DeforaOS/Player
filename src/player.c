@@ -1932,43 +1932,57 @@ static void _read_parse(Player * player, char const * buf)
 	unsigned int u2;
 	gdouble db;
 	char str[256];
+	size_t i;
 	time_t t;
 	struct tm tm;
 
-	/* FIXME right-trim the meta-data (whitespaces) */
 	if(sscanf(buf, "ANS_META_ALBUM='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
+		for(i = sizeof(str) - 1; i > 0 && str[i - 1] == ' '; i--)
+			str[i - 1] = '\0';
 		gtk_label_set_text(GTK_LABEL(player->me_album), str);
 	}
 	else if(sscanf(buf, "ANS_META_ARTIST='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
+		for(i = sizeof(str) - 1; i > 0 && str[i - 1] == ' '; i--)
+			str[i - 1] = '\0';
 		gtk_label_set_text(GTK_LABEL(player->me_artist), str);
 	}
 	else if(sscanf(buf, "ANS_META_COMMENT='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
+		for(i = sizeof(str) - 1; i > 0 && str[i - 1] == ' '; i--)
+			str[i - 1] = '\0';
 		gtk_label_set_text(GTK_LABEL(player->me_comment), str);
 	}
 	else if(sscanf(buf, "ANS_META_GENRE='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
+		for(i = sizeof(str) - 1; i > 0 && str[i - 1] == ' '; i--)
+			str[i - 1] = '\0';
 		gtk_label_set_text(GTK_LABEL(player->me_genre), str);
 	}
 	else if(sscanf(buf, "ANS_META_TITLE='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
+		for(i = sizeof(str) - 1; i > 0 && str[i - 1] == ' '; i--)
+			str[i - 1] = '\0';
 		gtk_label_set_text(GTK_LABEL(player->me_title), str);
 	}
 	else if(sscanf(buf, "ANS_META_TRACK='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
+		for(i = sizeof(str) - 1; i > 0 && str[i - 1] == ' '; i--)
+			str[i - 1] = '\0';
 		gtk_label_set_text(GTK_LABEL(player->me_track), str);
 	}
 	else if(sscanf(buf, "ANS_META_YEAR='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
+		for(i = sizeof(str) - 1; i > 0 && str[i - 1] == ' '; i--)
+			str[i - 1] = '\0';
 		gtk_label_set_text(GTK_LABEL(player->me_year), str);
 	}
 	else if(sscanf(buf, "ANS_PERCENT_POSITION=%u\n", &u1) == 1)
@@ -1991,6 +2005,8 @@ static void _read_parse(Player * player, char const * buf)
 	else if(sscanf(buf, "ID_AUDIO_CODEC=%255[^\n]", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
+		for(i = sizeof(str) - 1; i > 0 && str[i - 1] == ' '; i--)
+			str[i - 1] = '\0';
 		if(player->audio_codec != NULL)
 			free(player->audio_codec);
 		player->audio_codec = strdup(str);
@@ -2031,6 +2047,8 @@ static void _read_parse(Player * player, char const * buf)
 	else if(sscanf(buf, "ID_VIDEO_CODEC=%255[^\n]", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
+		for(i = sizeof(str) - 1; i > 0 && str[i - 1] == ' '; i--)
+			str[i - 1] = '\0';
 		if(player->video_codec != NULL)
 			free(player->video_codec);
 		player->video_codec = strdup(str);
