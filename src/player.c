@@ -1065,40 +1065,21 @@ void player_playlist_add_url(Player * player, char const * url)
 {
 	GtkTreeIter iter;
 	char const file[] = "file:/";
-	char * p = NULL;
-	size_t len;
-	size_t i;
-	size_t j;
-	unsigned int u;
+	gchar * p = NULL;
+	GError * error = NULL;
 
 #ifdef DEBUG
 	fprintf(stderr, "DEBUG: %s(\"%s\")\n", __func__, url);
 #endif
 	if(strncmp(file, url, sizeof(file) - 1) == 0)
 	{
-		url = &url[sizeof(file) - 2];
-		/* left-trim all slashes */
-		for(; url[1] == '/'; url++);
-		/* URL decode */
-		len = strlen(url);
-		if((p = malloc(len + 1)) == NULL)
+		if((p = g_filename_from_uri(url, NULL, &error)) == NULL)
 		{
-			player_error(NULL, "strdup", 1);
+			/* XXX do not call perror() */
+			player_error(NULL, error->message, 1);
+			g_error_free(error);
 			return;
 		}
-		for(i = 0, j = 0; url[i] != '\0'; i++, j++)
-			if((p[j] = url[i]) == '%')
-			{
-				if(sscanf(&url[++i], "%02x", &u) != 1)
-				{
-					player_error(NULL, "sscanf", 1);
-					free(p);
-					return;
-				}
-				p[j] = u;
-				i++;
-			}
-		p[j] = '\0';
 		url = p;
 	}
 #ifdef DEBUG
@@ -1116,7 +1097,7 @@ void player_playlist_add_url(Player * player, char const * url)
 			PL_COL_ARTIST, _("Unknown artist"),
 			PL_COL_TITLE, _("Unknown title"),
 			PL_COL_DURATION, _("Unknown"), -1);
-	free(p);
+	g_free(p);
 }
 
 
