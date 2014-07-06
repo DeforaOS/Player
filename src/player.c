@@ -797,7 +797,7 @@ void player_mute(Player * player, PlayerMute mute)
 			(mute != PLAYER_MUTE_TOGGLE)
 			? (mute == PLAYER_MUTE_UNMUTE ? "0" : "1") : "");
 	if(len >= (int)sizeof(cmd))
-		player_error(NULL, "Could not (un)mute", 1);
+		fputs("player: String too long\n", stderr);
 	else
 		_player_command(player, cmd, len);
 }
@@ -1760,7 +1760,7 @@ static void _player_message(Player * player, char const * message,
 
 	if((len = snprintf(buf, sizeof(buf), "%s \"%s\" %u\n", cmd, message,
 					duration)) >= (int)sizeof(buf))
-		player_error(NULL, "Could not display message", 1);
+		fputs("player: String too long\n", stderr);
 	else
 		_player_command(player, buf, len);
 }
