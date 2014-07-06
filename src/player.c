@@ -1758,9 +1758,11 @@ static void _player_message(Player * player, char const * message,
 	char buf[128];
 	int len;
 
-	len = snprintf(buf, sizeof(buf), "%s \"%s\" %u\n", cmd, message,
-			duration);
-	_player_command(player, buf, len);
+	if((len = snprintf(buf, sizeof(buf), "%s \"%s\" %u\n", cmd, message,
+					duration)) >= (int)sizeof(buf))
+		player_error(NULL, "Could not display message", 1);
+	else
+		_player_command(player, buf, len);
 }
 
 
