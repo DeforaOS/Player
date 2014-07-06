@@ -1,5 +1,5 @@
 /* $Id$ */
-/* Copyright (c) 2013 Pierre Pronchery <khorben@defora.org> */
+/* Copyright (c) 2013-2014 Pierre Pronchery <khorben@defora.org> */
 /* This file is part of DeforaOS Desktop Player */
 /* This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,17 @@
 
 /* Player */
 /* types */
+typedef enum _PlayerMute
+{
+	PLAYER_MUTE_UNMUTE = 0,
+	PLAYER_MUTE_MUTE,
+	PLAYER_MUTE_TOGGLE
+} PlayerMute;
+
 typedef enum _PlayerMessage
 {
 	PLAYER_MESSAGE_FORWARD = 0,
+	PLAYER_MESSAGE_MUTE,		/* PlayerMute */
 	PLAYER_MESSAGE_NEXT,
 	PLAYER_MESSAGE_PAUSE,
 	PLAYER_MESSAGE_PLAY,

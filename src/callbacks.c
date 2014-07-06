@@ -64,11 +64,16 @@ int on_player_message(void * data, uint32_t value1, uint32_t value2,
 {
 	Player * player = data;
 	PlayerMessage message = value1;
+	PlayerMute mute;
 
 	switch(message)
 	{
 		case PLAYER_MESSAGE_FORWARD:
 			player_forward(player);
+			break;
+		case PLAYER_MESSAGE_MUTE:
+			mute = value2;
+			player_mute(player, mute);
 			break;
 		case PLAYER_MESSAGE_NEXT:
 			player_next(player);

@@ -1,5 +1,5 @@
 /* $Id$ */
-/* Copyright (c) 2006-2013 Pierre Pronchery <khorben@defora.org> */
+/* Copyright (c) 2006-2014 Pierre Pronchery <khorben@defora.org> */
 /* This file is part of DeforaOS Desktop Player */
 /* This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 # define PLAYER_PLAYER_H
 
 # include <gtk/gtk.h>
+# include "Player.h"
 
 
 /* Player */
@@ -46,6 +47,8 @@ int player_sigchld(Player * player);
 void player_switch_angle(Player * player);
 void player_switch_audio(Player * player);
 void player_switch_subtitles(Player * player);
+
+void player_mute(Player * player, PlayerMute mute);
 
 /* playlist management */
 int player_open(Player * player, char const * filename);

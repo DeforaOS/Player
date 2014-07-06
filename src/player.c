@@ -786,6 +786,23 @@ int player_sigchld(Player * player)
 }
 
 
+/* player_mute */
+void player_mute(Player * player, PlayerMute mute)
+{
+	char cmd[8];
+	int len;
+
+	len = snprintf(cmd, sizeof(cmd), "%s%s%s\n", "mute",
+			(mute != PLAYER_MUTE_TOGGLE) ? " " : "",
+			(mute != PLAYER_MUTE_TOGGLE)
+			? (mute == PLAYER_MUTE_UNMUTE ? "0" : "1") : "");
+	if(len >= (int)sizeof(cmd))
+		player_error(NULL, "Could not (un)mute", 1);
+	else
+		_player_command(player, cmd, len);
+}
+
+
 /* player_next */
 void player_next(Player * player)
 {

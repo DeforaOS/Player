@@ -1,5 +1,5 @@
 /* $Id$ */
-/* Copyright (c) 2013 Pierre Pronchery <khorben@defora.org> */
+/* Copyright (c) 2013-2014 Pierre Pronchery <khorben@defora.org> */
 /* This file is part of DeforaOS Desktop Player */
 /* This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@
 /* playerctl */
 /* private */
 /* prototypes */
-static int _playerctl(PlayerMessage message);
+static int _playerctl(PlayerMessage message, unsigned int arg1);
 
 static int _error(char const * message, int ret);
 static int _usage(void);
@@ -49,9 +49,9 @@ static int _usage(void);
 
 /* functions */
 /* playerctl */
-static int _playerctl(PlayerMessage message)
+static int _playerctl(PlayerMessage message, unsigned int arg1)
 {
-	desktop_message_send(PLAYER_CLIENT_MESSAGE, message, 0, 0);
+	desktop_message_send(PLAYER_CLIENT_MESSAGE, message, arg1, 0);
 	return 0;
 }
 
@@ -68,7 +68,7 @@ static int _error(char const * message, int ret)
 /* usage */
 static int _usage(void)
 {
-	fputs(_("Usage: playerctl -FMNPRps\n"), stderr);
+	fputs(_("Usage: playerctl -FMmNPRpsu\n"), stderr);
 	return 1;
 }
 
@@ -80,40 +80,56 @@ int main(int argc, char * argv[])
 {
 	int o;
 	int message = -1;
+	unsigned int arg1 = 0;
 
 	if(setlocale(LC_ALL, "") == NULL)
 		_error("setlocale", 1);
 	bindtextdomain(PACKAGE, LOCALEDIR);
 	textdomain(PACKAGE);
 	gtk_init(&argc, &argv);
-	while((o = getopt(argc, argv, "FMNPRps")) != -1)
+	while((o = getopt(argc, argv, "FMmNPRpsu")) != -1)
 		switch(o)
 		{
 			case 'F':
 				message = PLAYER_MESSAGE_FORWARD;
+				arg1 = 0;
+				break;
+			case 'm':
+				message = PLAYER_MESSAGE_MUTE;
+				arg1 = PLAYER_MUTE_MUTE;
 				break;
 			case 'M':
 				message = PLAYER_MESSAGE_PREVIOUS;
+				arg1 = 0;
 				break;
 			case 'N':
 				message = PLAYER_MESSAGE_NEXT;
+				arg1 = 0;
 				break;
 			case 'P':
 				message = PLAYER_MESSAGE_PAUSE;
+				arg1 = 0;
 				break;
 			case 'R':
 				message = PLAYER_MESSAGE_REWIND;
+				arg1 = 0;
 				break;
 			case 'p':
 				message = PLAYER_MESSAGE_PLAY;
+				arg1 = 0;
 				break;
 			case 's':
 				message = PLAYER_MESSAGE_STOP;
+				arg1 = 0;
+				break;
+			case 'u':
+				message = PLAYER_MESSAGE_MUTE;
+				arg1 = PLAYER_MUTE_UNMUTE;
 				break;
 			default:
 				return _usage();
 		}
 	if(argc != optind || message < 0)
 		return _usage();
-	return (_playerctl(message) == 0) ? 0 : 2;
+	return (_playerctl(message, arg1) == 0) ? 0 : 2;
 }
