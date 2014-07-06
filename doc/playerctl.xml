@@ -28,6 +28,7 @@
 		</authorgroup>
 		<copyright>
 			<year>2013</year>
+			<year>2014</year>
 			<holder>&firstname; &surname; &lt;&email;&gt;</holder>
 		</copyright>
 		<legalnotice>
@@ -52,11 +53,13 @@
 			<group choice="plain">
 				<arg choice="plain">-F</arg>
 				<arg choice="plain">-M</arg>
+				<arg choice="plain">-m</arg>
 				<arg choice="plain">-N</arg>
 				<arg choice="plain">-P</arg>
 				<arg choice="plain">-R</arg>
 				<arg choice="plain">-p</arg>
 				<arg choice="plain">-s</arg>
+				<arg choice="plain">-u</arg>
 			</group>
 		</cmdsynopsis>
 	</refsynopsisdiv>
@@ -79,6 +82,12 @@
 				<term><option>-M</option></term>
 				<listitem>
 					<para>Skips to the previous file in the playlist.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>-m</option></term>
+				<listitem>
+					<para>Mute the audio output.</para>
 				</listitem>
 			</varlistentry>
 			<varlistentry>
@@ -109,6 +118,12 @@
 				<term><option>-s</option></term>
 				<listitem>
 					<para>Stops playback.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>-u</option></term>
+				<listitem>
+					<para>Unmute the audio output.</para>
 				</listitem>
 			</varlistentry>
 		</variablelist>
