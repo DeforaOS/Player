@@ -989,9 +989,10 @@ void player_play(Player * player)
 	/* FIXME escape double quotes in filename? */
 	if(player->paused == 1)
 		len = snprintf(cmd, sizeof(cmd), "%s", "pause\n");
-	else if((len = snprintf(cmd, sizeof(cmd), "%s%s%s", "loadfile \"",
-					filename, "\" 0\n"))
-			>= sizeof(cmd))
+	else
+		len = snprintf(cmd, sizeof(cmd), "%s%s%s", "loadfile \"",
+				filename, "\" 0\n");
+	if(len >= sizeof(cmd))
 	{
 		fputs("player: String too long\n", stderr);
 		return;
