@@ -1796,8 +1796,9 @@ static int _player_start(Player * player)
 
 	argv[4] = wid;
 	_player_reset(player, NULL);
-	snprintf(wid, sizeof(wid), "%lu", gtk_socket_get_id(GTK_SOCKET(
-					player->view_window)));
+	/* XXX not portable */
+	snprintf(wid, sizeof(wid), "%lu", (unsigned long)gtk_socket_get_id(
+				GTK_SOCKET(player->view_window)));
 	if(pipe(player->fd[0]) != 0 || pipe(player->fd[1]) != 0)
 		return -player_error(player, strerror(errno), 1);
 	if((player->pid = fork()) == -1)
