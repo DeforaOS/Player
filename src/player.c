@@ -1712,14 +1712,17 @@ static void _player_filters(GtkWidget * dialog)
 	};
 	char const * audio[] =
 	{
+		"audio/aac",
 		"audio/ac3",
+		"audio/flac",
 		"audio/mp4",
 		"audio/mpeg",
-		"audio/vorbis",
+		"audio/ogg",
+		"audio/x-matroska",
 		"audio/x-mp2",
 		"audio/x-mp3",
 		"audio/x-ms-wma",
-		"audio/x-vorbis",
+		"audio/x-vorbis+ogg",
 		"audio/x-wav",
 		NULL
 	};
