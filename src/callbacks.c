@@ -378,6 +378,24 @@ void on_playlist_remove(gpointer data)
 }
 
 
+/* on_playlist_row_deleted */
+void on_playlist_row_deleted(gpointer data)
+{
+	Player * player = data;
+
+	player_playlist_reordered(player);
+}
+
+
+/* on_playlist_row_inserted */
+void on_playlist_row_inserted(gpointer data)
+{
+	Player * player = data;
+
+	player_playlist_reordered(player);
+}
+
+
 /* on_playlist_save */
 void on_playlist_save(gpointer data)
 {

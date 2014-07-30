@@ -470,6 +470,10 @@ Player * player_new(void)
 			G_TYPE_STRING,	/* album */
 			G_TYPE_STRING,	/* title */
 			G_TYPE_STRING);	/* duration */
+	g_signal_connect_swapped(player->pl_store, "row-deleted", G_CALLBACK(
+				on_playlist_row_deleted), player);
+	g_signal_connect_swapped(player->pl_store, "row-inserted", G_CALLBACK(
+				on_playlist_row_inserted), player);
 	widget = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widget),
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -1198,6 +1202,19 @@ void player_playlist_remove_selection(Player * player)
 	/* free the references */
 	g_list_foreach(rows, (GFunc)gtk_tree_row_reference_free, NULL);
 	g_list_free(rows);
+}
+
+
+/* player_playlist_reordered */
+void player_playlist_reordered(Player * player)
+{
+	/* XXX the current reference is lost if reordered */
+	if(player->current == NULL
+			|| gtk_tree_row_reference_valid(player->current)
+			== TRUE)
+		return;
+	gtk_tree_row_reference_free(player->current);
+	player->current = NULL;
 }
 
 

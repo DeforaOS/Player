@@ -72,6 +72,8 @@ void on_playlist_add(gpointer data);
 gboolean on_playlist_closex(gpointer data);
 void on_playlist_load(gpointer data);
 void on_playlist_remove(gpointer data);
+void on_playlist_row_deleted(gpointer data);
+void on_playlist_row_inserted(gpointer data);
 void on_playlist_save(gpointer data);
 
 #endif /* !PLAYER_CALLBACKS_H */
