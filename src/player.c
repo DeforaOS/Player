@@ -819,7 +819,11 @@ void player_next(Player * player)
 	if(player->current == NULL)
 		return;
 	if((path = gtk_tree_row_reference_get_path(player->current)) == NULL)
+	{
+		gtk_tree_row_reference_free(player->current);
+		player->current = NULL;
 		return;
+	}
 	res = gtk_tree_model_get_iter(model, &iter, path);
 	gtk_tree_path_free(path);
 	if(res != TRUE)
@@ -1234,7 +1238,11 @@ void player_previous(Player * player)
 	if(player->current == NULL)
 		return;
 	if((path = gtk_tree_row_reference_get_path(player->current)) == NULL)
+	{
+		gtk_tree_row_reference_free(player->current);
+		player->current = NULL;
 		return;
+	}
 	if(gtk_tree_path_prev(path) != TRUE)
 		return;
 	path = gtk_tree_path_copy(path);
@@ -1556,7 +1564,11 @@ static char * _player_get_filename(Player * player)
 	if(player->current == NULL)
 		return NULL;
 	if((path = gtk_tree_row_reference_get_path(player->current)) == NULL)
+	{
+		gtk_tree_row_reference_free(player->current);
+		player->current = NULL;
 		return NULL;
+	}
 	if(gtk_tree_model_get_iter(GTK_TREE_MODEL(player->pl_store), &iter,
 				path) != TRUE)
 		return NULL;
@@ -1576,7 +1588,11 @@ static void _player_set_metadata(Player * player, unsigned int column,
 	if(player->current == NULL)
 		return;
 	if((path = gtk_tree_row_reference_get_path(player->current)) == NULL)
+	{
+		gtk_tree_row_reference_free(player->current);
+		player->current = NULL;
 		return;
+	}
 	if(gtk_tree_model_get_iter(GTK_TREE_MODEL(player->pl_store), &iter,
 				path) != TRUE)
 		return;
