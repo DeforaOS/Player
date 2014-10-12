@@ -26,6 +26,10 @@ playerctl.html: manual.css.xml playerctl.css.xml playerctl.xml
 
 clean:
 	$(RM) -- $(index.html_OBJS) $(player.1_OBJS) $(player.html_OBJS) $(playerctl.1_OBJS) $(playerctl.html_OBJS)
+	./docbook.sh -c -P "$(PREFIX)" -- "index.html"
+	./docbook.sh -c -P "$(PREFIX)" -- "player.1"
+	./docbook.sh -c -P "$(PREFIX)" -- "player.html"
+	./docbook.sh -c -P "$(PREFIX)" -- "playerctl.1"
 	./docbook.sh -c -P "$(PREFIX)" -- "playerctl.html"
 
 distclean: clean
