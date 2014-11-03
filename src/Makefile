@@ -1,4 +1,5 @@
-TARGETS	= player playerctl
+TARGETS	= $(OBJDIR)player $(OBJDIR)playerctl
+OBJDIR	=
 PREFIX	= /usr/local
 DESTDIR	=
 BINDIR	= $(PREFIX)/bin
@@ -18,31 +19,31 @@ INSTALL	= install
 
 all: $(TARGETS)
 
-player_OBJS = callbacks.o player.o main.o
+player_OBJS = $(OBJDIR)callbacks.o $(OBJDIR)player.o $(OBJDIR)main.o
 player_CFLAGS = $(CPPFLAGSF) $(CPPFLAGS) $(CFLAGSF) $(CFLAGS)
 player_LDFLAGS = $(LDFLAGSF) $(LDFLAGS)
 
-player: $(player_OBJS)
-	$(CC) -o player $(player_OBJS) $(player_LDFLAGS)
+$(OBJDIR)player: $(player_OBJS)
+	$(CC) -o $(OBJDIR)player $(player_OBJS) $(player_LDFLAGS)
 
-playerctl_OBJS = playerctl.o
+playerctl_OBJS = $(OBJDIR)playerctl.o
 playerctl_CFLAGS = $(CPPFLAGSF) $(CPPFLAGS) $(CFLAGSF) $(CFLAGS)
 playerctl_LDFLAGS = $(LDFLAGSF) $(LDFLAGS)
 
-playerctl: $(playerctl_OBJS)
-	$(CC) -o playerctl $(playerctl_OBJS) $(playerctl_LDFLAGS)
+$(OBJDIR)playerctl: $(playerctl_OBJS)
+	$(CC) -o $(OBJDIR)playerctl $(playerctl_OBJS) $(playerctl_LDFLAGS)
 
-callbacks.o: callbacks.c callbacks.h player.h ../include/Player.h ../config.h
-	$(CC) $(player_CFLAGS) -c callbacks.c
+$(OBJDIR)callbacks.o: callbacks.c callbacks.h player.h ../include/Player.h ../config.h
+	$(CC) $(player_CFLAGS) -o $(OBJDIR)callbacks.o -c callbacks.c
 
-player.o: player.c callbacks.h player.h ../include/Player.h ../config.h
-	$(CC) -D PREFIX=\"$(PREFIX)\" $(player_CFLAGS) -c player.c
+$(OBJDIR)player.o: player.c callbacks.h player.h ../include/Player.h ../config.h
+	$(CC) -D PREFIX=\"$(PREFIX)\" $(player_CFLAGS) -o $(OBJDIR)player.o -c player.c
 
-main.o: main.c player.h ../config.h
-	$(CC) -D PREFIX=\"$(PREFIX)\" $(player_CFLAGS) -c main.c
+$(OBJDIR)main.o: main.c player.h ../config.h
+	$(CC) -D PREFIX=\"$(PREFIX)\" $(player_CFLAGS) -o $(OBJDIR)main.o -c main.c
 
-playerctl.o: playerctl.c ../include/Player.h ../config.h
-	$(CC) $(playerctl_CFLAGS) -c playerctl.c
+$(OBJDIR)playerctl.o: playerctl.c ../include/Player.h ../config.h
+	$(CC) $(playerctl_CFLAGS) -o $(OBJDIR)playerctl.o -c playerctl.c
 
 clean:
 	$(RM) -- $(player_OBJS) $(playerctl_OBJS)
@@ -52,9 +53,9 @@ distclean: clean
 
 install: $(TARGETS)
 	$(MKDIR) $(DESTDIR)$(BINDIR)
-	$(INSTALL) -m 0755 player $(DESTDIR)$(BINDIR)/player
+	$(INSTALL) -m 0755 $(OBJDIR)player $(DESTDIR)$(BINDIR)/player
 	$(MKDIR) $(DESTDIR)$(BINDIR)
-	$(INSTALL) -m 0755 playerctl $(DESTDIR)$(BINDIR)/playerctl
+	$(INSTALL) -m 0755 $(OBJDIR)playerctl $(DESTDIR)$(BINDIR)/playerctl
 
 uninstall:
 	$(RM) -- $(DESTDIR)$(BINDIR)/player

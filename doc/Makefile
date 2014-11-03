@@ -1,4 +1,5 @@
-TARGETS	= index.html player.1 player.html playerctl.1 playerctl.html
+TARGETS	= $(OBJDIR)index.html $(OBJDIR)player.1 $(OBJDIR)player.html $(OBJDIR)playerctl.1 $(OBJDIR)playerctl.html
+OBJDIR	=
 PREFIX	= /usr/local
 DESTDIR	=
 RM	= rm -f
@@ -9,20 +10,20 @@ INSTALL	= install
 
 all: $(TARGETS)
 
-index.html: index.xml index.xsl player.xml playerctl.xml
-	./docbook.sh -P "$(PREFIX)" -- "index.html"
+$(OBJDIR)index.html: index.xml index.xsl player.xml playerctl.xml
+	./docbook.sh -P "$(PREFIX)" -- "$(OBJDIR)index.html"
 
-player.1: player.xml
-	./docbook.sh -P "$(PREFIX)" -- "player.1"
+$(OBJDIR)player.1: player.xml
+	./docbook.sh -P "$(PREFIX)" -- "$(OBJDIR)player.1"
 
-player.html: manual.css.xml player.css.xml player.xml
-	./docbook.sh -P "$(PREFIX)" -- "player.html"
+$(OBJDIR)player.html: manual.css.xml player.css.xml player.xml
+	./docbook.sh -P "$(PREFIX)" -- "$(OBJDIR)player.html"
 
-playerctl.1: playerctl.xml
-	./docbook.sh -P "$(PREFIX)" -- "playerctl.1"
+$(OBJDIR)playerctl.1: playerctl.xml
+	./docbook.sh -P "$(PREFIX)" -- "$(OBJDIR)playerctl.1"
 
-playerctl.html: manual.css.xml playerctl.css.xml playerctl.xml
-	./docbook.sh -P "$(PREFIX)" -- "playerctl.html"
+$(OBJDIR)playerctl.html: manual.css.xml playerctl.css.xml playerctl.xml
+	./docbook.sh -P "$(PREFIX)" -- "$(OBJDIR)playerctl.html"
 
 clean:
 	$(RM) -- $(index.html_OBJS) $(player.1_OBJS) $(player.html_OBJS) $(playerctl.1_OBJS) $(playerctl.html_OBJS)
@@ -36,10 +37,10 @@ distclean: clean
 	$(RM) -- $(TARGETS)
 
 install: $(TARGETS)
-	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "player.1"
-	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "player.html"
-	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "playerctl.1"
-	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "playerctl.html"
+	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "$(OBJDIR)player.1"
+	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "$(OBJDIR)player.html"
+	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "$(OBJDIR)playerctl.1"
+	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "$(OBJDIR)playerctl.html"
 
 uninstall:
 	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -u -- "player.1"
