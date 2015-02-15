@@ -1320,6 +1320,7 @@ void player_show_preferences(Player * player, gboolean show)
 			GTK_DIALOG_DESTROY_WITH_PARENT,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			GTK_STOCK_OK, GTK_RESPONSE_OK, NULL);
+	gtk_window_set_resizable(GTK_WINDOW(player->pr_window), FALSE);
 	g_signal_connect_swapped(player->pr_window, "delete-event", G_CALLBACK(
 				_preferences_on_closex), player);
 	g_signal_connect(player->pr_window, "response", G_CALLBACK(
