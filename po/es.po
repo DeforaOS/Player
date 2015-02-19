@@ -1,0 +1,271 @@
+# $Id$
+# Copyright (c) 2014 Pierre Pronchery <khorben@defora.org>
+# Spanish translations for Player package.
+# This file is distributed under the same license as the Player package.
+# Pierre Pronchery <khorben@defora.org>, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Player 0.1.6\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-06-11 23:59+0200\n"
+"PO-Revision-Date: 2014-12-28 19:58+0100\n"
+"Last-Translator: Pierre Pronchery <khorben@defora.org>\n"
+"Language-Team: Spanish\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../src/main.c:51
+msgid "Usage: player [file...]\n"
+msgstr ""
+
+#: ../src/player.c:177
+msgid "_Open..."
+msgstr ""
+
+#: ../src/player.c:179
+msgid "Open _URL..."
+msgstr ""
+
+#: ../src/player.c:181
+msgid "_Properties"
+msgstr ""
+
+#: ../src/player.c:184
+msgid "_Close"
+msgstr ""
+
+#: ../src/player.c:191
+msgid "_Preferences"
+msgstr ""
+
+#: ../src/player.c:198
+msgid "_Playlist"
+msgstr ""
+
+#: ../src/player.c:201 ../src/player.c:204
+msgid "_Fullscreen"
+msgstr ""
+
+#: ../src/player.c:208
+msgid "Switch angle"
+msgstr ""
+
+#: ../src/player.c:209
+msgid "Switch audio"
+msgstr ""
+
+#: ../src/player.c:210
+msgid "Switch subtitles"
+msgstr ""
+
+#: ../src/player.c:217
+msgid "_Contents"
+msgstr ""
+
+#: ../src/player.c:220 ../src/player.c:222
+msgid "_About"
+msgstr ""
+
+#: ../src/player.c:229
+msgid "_File"
+msgstr ""
+
+#: ../src/player.c:230
+msgid "_Edit"
+msgstr ""
+
+#: ../src/player.c:231
+msgid "_View"
+msgstr ""
+
+#: ../src/player.c:232
+msgid "_Help"
+msgstr ""
+
+#: ../src/player.c:240
+msgid "Open"
+msgstr ""
+
+#: ../src/player.c:243
+msgid "Properties"
+msgstr ""
+
+#: ../src/player.c:246
+msgid "Preferences"
+msgstr ""
+
+#: ../src/player.c:254
+msgid "Previous"
+msgstr ""
+
+#: ../src/player.c:256 ../src/player.c:1173
+msgid "Rewind"
+msgstr ""
+
+#: ../src/player.c:258
+msgid "Play"
+msgstr ""
+
+#: ../src/player.c:259
+msgid "Pause"
+msgstr ""
+
+#: ../src/player.c:261
+msgid "Stop"
+msgstr ""
+
+#: ../src/player.c:262 ../src/player.c:725
+msgid "Forward"
+msgstr ""
+
+#: ../src/player.c:264
+msgid "Next"
+msgstr ""
+
+#: ../src/player.c:358 ../src/player.c:1728
+msgid "Media player"
+msgstr ""
+
+#: ../src/player.c:416
+msgid "Fullscreen"
+msgstr ""
+
+#: ../src/player.c:443
+msgid "Playlist"
+msgstr ""
+
+#: ../src/player.c:469
+msgid "Artist"
+msgstr ""
+
+#: ../src/player.c:470
+msgid "Album"
+msgstr ""
+
+#: ../src/player.c:471
+msgid "Title"
+msgstr ""
+
+#: ../src/player.c:472
+msgid "Duration"
+msgstr ""
+
+#: ../src/player.c:667
+msgid "Media player for the DeforaOS desktop"
+msgstr ""
+
+#: ../src/player.c:674
+msgid "translator-credits"
+msgstr ""
+
+#: ../src/player.c:705 ../src/player.c:710
+msgid "Error"
+msgstr ""
+
+#: ../src/player.c:744
+#, c-format
+msgid "mplayer %d: exited with code %u"
+msgstr ""
+
+#: ../src/player.c:828
+msgid "Open file..."
+msgstr ""
+
+#: ../src/player.c:867
+msgid "Open URL..."
+msgstr ""
+
+#: ../src/player.c:879
+msgid "URL: "
+msgstr ""
+
+#: ../src/player.c:919
+msgid "Paused"
+msgstr ""
+
+#: ../src/player.c:970 ../src/player.c:1022
+msgid "Unknown album"
+msgstr ""
+
+#: ../src/player.c:971 ../src/player.c:1023
+msgid "Unknown artist"
+msgstr ""
+
+#: ../src/player.c:972 ../src/player.c:1024
+msgid "Unknown title"
+msgstr ""
+
+#: ../src/player.c:973 ../src/player.c:1025
+msgid "Unknown"
+msgstr ""
+
+#: ../src/player.c:985
+msgid "Add file(s)..."
+msgstr ""
+
+#: ../src/player.c:1053
+msgid "Open playlist..."
+msgstr ""
+
+#: ../src/player.c:1060
+msgid "Playlists"
+msgstr ""
+
+#: ../src/player.c:1066 ../src/player.c:1681
+msgid "All files"
+msgstr ""
+
+#: ../src/player.c:1229
+msgid "Media player preferences"
+msgstr ""
+
+#: ../src/player.c:1246
+msgid "_Automatically play files when opened"
+msgstr ""
+
+#: ../src/player.c:1329
+msgid "Properties of "
+msgstr ""
+
+#: ../src/player.c:1399
+msgid "Album: "
+msgstr ""
+
+#: ../src/player.c:1402
+msgid "Artist: "
+msgstr ""
+
+#: ../src/player.c:1405
+msgid "Comment: "
+msgstr ""
+
+#: ../src/player.c:1408
+msgid "Genre: "
+msgstr ""
+
+#: ../src/player.c:1411
+msgid "Title: "
+msgstr ""
+
+#: ../src/player.c:1414
+msgid "Track: "
+msgstr ""
+
+#: ../src/player.c:1417
+msgid "Year: "
+msgstr ""
+
+#: ../src/player.c:1661
+msgid "Video and audio files"
+msgstr ""
+
+#: ../src/player.c:1669
+msgid "Video files"
+msgstr ""
+
+#: ../src/player.c:1675
+msgid "Audio files"
+msgstr ""
