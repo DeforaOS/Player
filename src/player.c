@@ -1903,7 +1903,6 @@ static int _player_start(Player * player)
 /* callbacks */
 /* command_read */
 static void _read_parse(Player * player, char const * buf);
-static void _read_parse_rtrim(char * buf);
 
 static gboolean _command_read(GIOChannel * source, GIOCondition condition,
 		gpointer data)
@@ -1965,43 +1964,43 @@ static void _read_parse(Player * player, char const * buf)
 	if(sscanf(buf, "ANS_META_ALBUM='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
-		_read_parse_rtrim(str);
+		string_rtrim(str, NULL);
 		gtk_label_set_text(GTK_LABEL(player->me_album), str);
 	}
 	else if(sscanf(buf, "ANS_META_ARTIST='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
-		_read_parse_rtrim(str);
+		string_rtrim(str, NULL);
 		gtk_label_set_text(GTK_LABEL(player->me_artist), str);
 	}
 	else if(sscanf(buf, "ANS_META_COMMENT='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
-		_read_parse_rtrim(str);
+		string_rtrim(str, NULL);
 		gtk_label_set_text(GTK_LABEL(player->me_comment), str);
 	}
 	else if(sscanf(buf, "ANS_META_GENRE='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
-		_read_parse_rtrim(str);
+		string_rtrim(str, NULL);
 		gtk_label_set_text(GTK_LABEL(player->me_genre), str);
 	}
 	else if(sscanf(buf, "ANS_META_TITLE='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
-		_read_parse_rtrim(str);
+		string_rtrim(str, NULL);
 		gtk_label_set_text(GTK_LABEL(player->me_title), str);
 	}
 	else if(sscanf(buf, "ANS_META_TRACK='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
-		_read_parse_rtrim(str);
+		string_rtrim(str, NULL);
 		gtk_label_set_text(GTK_LABEL(player->me_track), str);
 	}
 	else if(sscanf(buf, "ANS_META_YEAR='%255[^'\n]\n", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
-		_read_parse_rtrim(str);
+		string_rtrim(str, NULL);
 		gtk_label_set_text(GTK_LABEL(player->me_year), str);
 	}
 	else if(sscanf(buf, "ANS_PERCENT_POSITION=%u\n", &u1) == 1)
@@ -2024,7 +2023,7 @@ static void _read_parse(Player * player, char const * buf)
 	else if(sscanf(buf, "ID_AUDIO_CODEC=%255[^\n]", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
-		_read_parse_rtrim(str);
+		string_rtrim(str, NULL);
 		if(player->audio_codec != NULL)
 			free(player->audio_codec);
 		player->audio_codec = strdup(str);
@@ -2036,7 +2035,7 @@ static void _read_parse(Player * player, char const * buf)
 	else if(sscanf(buf, "ID_CLIP_INFO_NAME%u=%255s", &u1, str) == 2)
 	{
 		str[sizeof(str) - 1] = '\0';
-		_read_parse_rtrim(str);
+		string_rtrim(str, NULL);
 		if(strcmp(str, "Album") == 0)
 			player->album = u1;
 		else if(strcmp(str, "Artist") == 0)
@@ -2047,7 +2046,7 @@ static void _read_parse(Player * player, char const * buf)
 	else if(sscanf(buf, "ID_CLIP_INFO_VALUE%u=%255[^\n]", &u1, str) == 2)
 	{
 		str[sizeof(str) - 1] = '\0';
-		_read_parse_rtrim(str);
+		string_rtrim(str, NULL);
 		if(player->album >= 0 && (unsigned)player->album == u1)
 			_player_set_metadata(player, PL_COL_ALBUM, str);
 		else if(player->artist >= 0 && (unsigned)player->artist == u1)
@@ -2067,7 +2066,7 @@ static void _read_parse(Player * player, char const * buf)
 	else if(sscanf(buf, "ID_VIDEO_CODEC=%255[^\n]", str) == 1)
 	{
 		str[sizeof(str) - 1] = '\0';
-		_read_parse_rtrim(str);
+		string_rtrim(str, NULL);
 		if(player->video_codec != NULL)
 			free(player->video_codec);
 		player->video_codec = strdup(str);
@@ -2084,15 +2083,6 @@ static void _read_parse(Player * player, char const * buf)
 	else
 		fprintf(stderr, "DEBUG: unknown output \"%s\"\n", buf);
 #endif
-}
-
-static void _read_parse_rtrim(char * buf)
-{
-	size_t i;
-
-	for(i = 0; buf[i] != '\0'; i++);
-	for(; i > 0 && buf[i - 1] == ' '; i--)
-		buf[i - 1] = '\0';
 }
 
 
