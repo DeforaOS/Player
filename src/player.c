@@ -104,7 +104,7 @@ struct _Player
 	GtkWidget * infobar;
 	GtkWidget * infobar_label;
 #endif
-	GtkWidget * view_window;
+	GtkWidget * view;
 	GtkWidget * progress;
 	int progress_ignore;
 	GtkWidget * progress_length;
@@ -396,11 +396,11 @@ Player * player_new(void)
 	gtk_box_pack_start(GTK_BOX(vbox), player->infobar, FALSE, TRUE, 0);
 #endif
 	/* view */
-	player->view_window = gtk_socket_new();
-	gtk_widget_modify_bg(player->view_window, GTK_STATE_NORMAL, &black);
-	g_signal_connect_swapped(player->view_window, "plug-removed",
-			G_CALLBACK(on_player_removed), player);
-	gtk_box_pack_start(GTK_BOX(vbox), player->view_window, TRUE, TRUE, 0);
+	player->view = gtk_socket_new();
+	gtk_widget_modify_bg(player->view, GTK_STATE_NORMAL, &black);
+	g_signal_connect_swapped(player->view, "plug-removed", G_CALLBACK(
+				on_player_removed), player);
+	gtk_box_pack_start(GTK_BOX(vbox), player->view, TRUE, TRUE, 0);
 	/* playbar */
 	toolbar = desktop_toolbar_create(_player_playbar, player, group);
 	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
@@ -648,7 +648,7 @@ void player_set_size(Player * player, int width, int height)
 		width = player->width;
 	if(height < 0)
 		height = player->height;
-	gtk_widget_set_size_request(player->view_window, width, height);
+	gtk_widget_set_size_request(player->view, width, height);
 	player->width = width;
 	player->height = height;
 }
@@ -1856,7 +1856,7 @@ static int _player_start(Player * player)
 	_player_reset(player, NULL);
 	/* XXX not portable */
 	snprintf(wid, sizeof(wid), "%lu", (unsigned long)gtk_socket_get_id(
-				GTK_SOCKET(player->view_window)));
+				GTK_SOCKET(player->view)));
 	if(pipe(player->fd[0]) != 0 || pipe(player->fd[1]) != 0)
 		return -player_error(player, strerror(errno), 1);
 	if((player->pid = fork()) == -1)
