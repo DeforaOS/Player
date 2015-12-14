@@ -104,7 +104,6 @@ struct _Player
 	GtkWidget * infobar;
 	GtkWidget * infobar_label;
 #endif
-	GtkWidget * view;
 	GtkWidget * view_window;
 	GtkWidget * progress;
 	int progress_ignore;
