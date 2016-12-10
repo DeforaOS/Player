@@ -17,7 +17,6 @@ static char const _license[] =
 
 
 
-#include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -34,25 +33,12 @@ static char const _license[] =
 # include <gtk/gtkx.h>
 #endif
 #include "../include/Player.h"
+#include "backend.h"
 #include "callbacks.h"
 #include "player.h"
-#include "../config.h"
+#include "common.h"
 #define _(string) gettext(string)
 #define N_(string) (string)
-
-/* constants */
-#ifndef PROGNAME
-# define PROGNAME	"player"
-#endif
-#ifndef PREFIX
-# define PREFIX		"/usr/local"
-#endif
-#ifndef BINDIR
-# define BINDIR		PREFIX "/bin"
-#endif
-#ifndef DATADIR
-# define DATADIR	PREFIX "/share"
-#endif
 
 
 /* Player */
@@ -63,38 +49,13 @@ struct _Player
 	Config * config;
 
 	/* view */
-	int paused;
+	gboolean paused;
 	gboolean fullscreen;
 
 	/* current file */
 	GtkTreeRowReference * current;
-	int width;
-	int height;
-	int audio_bitrate;
-	int audio_channels;
-	char * audio_codec;
-	int audio_rate;
-	gdouble length;
-	gdouble video_aspect;
-	int video_bitrate;
-	char * video_codec;
-	gdouble video_fps;
-	int video_rate;
-	int album;
-	int artist;
-	int title;
 
-	/* mplayer */
-	pid_t pid;
-	int fd[2][2];				/* mplayer pipes	*/
-	GIOChannel * channel[2];
-	char * buf;				/* pipe write buffer	*/
-	size_t buf_len;
-
-	/* callbacks */
-	guint read_id;				/* pipe read source id	*/
-	guint write_id;				/* pipe write source id	*/
-	guint timeout_id;			/* timeout source id	*/
+	PlayerBackend * backend;
 
 	/* widgets */
 	PangoFontDescription * bold;
@@ -147,7 +108,6 @@ struct _Player
 /* constants */
 #define PLAYER_CONFIG_FILE	".player"
 #define PLAYER_ICON_NAME	"multimedia"
-#define PLAYER_SPLASH		DATADIR "/" PACKAGE "/splash.png"
 
 enum
 {
@@ -276,10 +236,8 @@ static char const * _authors[] =
 
 /* prototypes */
 /* accessors */
-static char * _player_get_filename(Player * player);
 static void _player_set_metadata(Player * player, unsigned int column,
 		char const * value);
-static void _player_set_progress(Player * player, unsigned int progress);
 
 static gboolean _player_config_get_boolean(Player * player,
 		char const * variable, gboolean _default);
@@ -289,19 +247,9 @@ static char * _player_config_filename(void);
 static int _player_config_load(Player * player);
 static int _player_config_save(Player * player);
 
-static int _player_command(Player * player, char const * cmd, size_t cmd_len);
 static void _player_filters(GtkWidget * dialog);
 static void _player_message(Player * player, char const * message,
 		unsigned int duration);
-static void _player_reset(Player * player, char const * filename);
-static int _player_start(Player * player);
-
-/* callbacks */
-static gboolean _command_read(GIOChannel * source, GIOCondition condition,
-		gpointer data);
-static gboolean _command_timeout(gpointer data);
-static gboolean _command_write(GIOChannel * source, GIOCondition condition,
-		gpointer data);
 
 
 /* public */
@@ -318,33 +266,27 @@ Player * player_new(void)
 	GtkWidget * hbox;
 	GtkWidget * toolbar;
 	GtkToolItem * toolitem;
-	GdkColor black = { 0, 0, 0, 0 };
 	GtkTreeSelection * selection;
 
 	if((player = object_new(sizeof(*player))) == NULL)
 		return NULL;
+	if((player->backend = playerbackend_init(player)) == NULL)
+	{
+		object_delete(player);
+		return NULL;
+	}
 	if((player->config = config_new()) == NULL)
 	{
+		playerbackend_destroy(player->backend);
 		object_delete(player);
 		return NULL;
 	}
 	_player_config_load(player);
 	/* view */
-	player->paused = 0;
+	player->paused = FALSE;
 	player->fullscreen = FALSE;
 	/* current file */
 	player->current = NULL;
-	player->audio_codec = NULL;
-	player->video_codec = NULL;
-	/* mplayer */
-	player->pid = -1;
-	memset(&player->fd, 0, sizeof(player->fd));
-	player->buf = NULL;
-	player->buf_len = 0;
-	/* callbacks */
-	player->read_id = 0;
-	player->write_id = 0;
-	player->timeout_id = 0;
 	/* widgets */
 	group = gtk_accel_group_new();
 	player->bold = pango_font_description_new();
@@ -396,10 +338,7 @@ Player * player_new(void)
 	gtk_box_pack_start(GTK_BOX(vbox), player->infobar, FALSE, TRUE, 0);
 #endif
 	/* view */
-	player->view = gtk_socket_new();
-	gtk_widget_modify_bg(player->view, GTK_STATE_NORMAL, &black);
-	g_signal_connect_swapped(player->view, "plug-removed", G_CALLBACK(
-				on_player_removed), player);
+	player->view = playerbackend_get_widget(player->backend);
 	gtk_box_pack_start(GTK_BOX(vbox), player->view, TRUE, TRUE, 0);
 	/* playbar */
 	toolbar = desktop_toolbar_create(_player_playbar, player, group);
@@ -446,7 +385,7 @@ Player * player_new(void)
 	gtk_container_add(GTK_CONTAINER(toolitem), player->progress_length);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolitem, -1);
 	gtk_box_pack_end(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
-	_player_set_progress(player, 0);
+	player_set_progress(player, 0);
 	gtk_widget_show_all(player->window);
 	/* playlist */
 	/* FIXME make it dockable */
@@ -529,8 +468,9 @@ Player * player_new(void)
 #else
 	gtk_widget_show_all(vbox);
 #endif
-	/* mplayer */
-	_player_start(player);
+	/* backend */
+	player_reset(player, NULL);
+	playerbackend_start(player->backend);
 	/* messages */
 	desktop_message_register(player->window, PLAYER_CLIENT_MESSAGE,
 			on_player_message, player);
@@ -558,36 +498,7 @@ static void _new_column_text(GtkWidget * view, char const * title, int id)
 /* player_delete */
 void player_delete(Player * player)
 {
-	char const cmd[] = "\nquit\n";
-	gsize written;
-	size_t i;
-	int status = 0;
-	pid_t res;
-	struct timespec ts = { 0, 500000 };
-
-	if(player->read_id != 0)
-		g_source_remove(player->read_id);
-	if(player->write_id != 0)
-		g_source_remove(player->write_id);
-	if(player->timeout_id != 0)
-		g_source_remove(player->timeout_id);
-	g_io_channel_write_chars(player->channel[1], cmd, sizeof(cmd) - 1,
-			&written, NULL);
-	g_io_channel_shutdown(player->channel[1], FALSE, NULL);
-	for(i = 0; i < 6; i++)
-	{
-		if((res = waitpid(player->pid, &status, WNOHANG)) == -1)
-		{
-			player_error(NULL, "waitpid", 0);
-			break;
-		}
-		else if(res == 0)
-			nanosleep(&ts, NULL);
-		else if(WIFEXITED(status) || WIFSIGNALED(status))
-			break;
-		if(i == 4)
-			kill(player->pid, SIGTERM);
-	}
+	playerbackend_destroy(player->backend);
 	pango_font_description_free(player->bold);
 	config_delete(player->config);
 	object_delete(player);
@@ -595,10 +506,41 @@ void player_delete(Player * player)
 
 
 /* accessors */
+/* player_get_filename */
+char * player_get_filename(Player * player)
+{
+	char * ret;
+	GtkTreePath * path;
+	GtkTreeIter iter;
+
+	if(player->current == NULL)
+		return NULL;
+	if((path = gtk_tree_row_reference_get_path(player->current)) == NULL)
+	{
+		gtk_tree_row_reference_free(player->current);
+		player->current = NULL;
+		return NULL;
+	}
+	if(gtk_tree_model_get_iter(GTK_TREE_MODEL(player->pl_store), &iter,
+				path) != TRUE)
+		return NULL;
+	gtk_tree_model_get(GTK_TREE_MODEL(player->pl_store), &iter,
+			PL_COL_FILENAME, &ret, -1);
+	return ret;
+}
+
+
 /* player_get_fullscreen */
 gboolean player_get_fullscreen(Player * player)
 {
 	return player->fullscreen;
+}
+
+
+/* player_get_paused */
+gboolean player_get_paused(Player * player)
+{
+	return player->paused;
 }
 
 
@@ -621,20 +563,70 @@ void player_set_fullscreen(Player * player, gboolean fullscreen)
 }
 
 
-/* player_set_progress */
-void player_set_progress(Player * player, gdouble progress)
+/* player_set_metadata */
+void player_set_metadata(Player * player, PlayerMetadata metadata,
+		char const * value)
 {
-	char buf[48];
-	int len;
+	switch(metadata)
+	{
+		case PM_ALBUM:
+			_player_set_metadata(player, PL_COL_ALBUM, value);
+			gtk_label_set_text(GTK_LABEL(player->me_album), value);
+			break;
+		case PM_ARTIST:
+			_player_set_metadata(player, PL_COL_ARTIST, value);
+			gtk_label_set_text(GTK_LABEL(player->me_artist), value);
+			break;
+		case PM_COMMENT:
+			gtk_label_set_text(GTK_LABEL(player->me_comment), value);
+			break;
+		case PM_GENRE:
+			gtk_label_set_text(GTK_LABEL(player->me_genre), value);
+			break;
+		case PM_LENGTH:
+			gtk_label_set_text(GTK_LABEL(player->progress_length),
+					value);
+			break;
+		case PM_TITLE:
+			_player_set_metadata(player, PL_COL_TITLE, value);
+			gtk_label_set_text(GTK_LABEL(player->me_title), value);
+			break;
+		case PM_TRACK:
+			gtk_label_set_text(GTK_LABEL(player->me_track), value);
+			break;
+		case PM_YEAR:
+			gtk_label_set_text(GTK_LABEL(player->me_year), value);
+			break;
+	}
+}
 
-	if(player->progress_ignore != 0)
-		return;
-	if(progress < 0)
-		/* XXX hack */
-		progress = gtk_range_get_value(GTK_RANGE(player->progress));
-	len = snprintf(buf, sizeof(buf), "%s %.1f %d\n", "pausing_keep seek",
-			progress, 1);
-	_player_command(player, buf, len);
+
+/* player_set_paused */
+void player_set_paused(Player * player, gboolean paused)
+{
+	player->paused = paused;
+}
+
+
+/* player_set_progress */
+void player_set_progress(Player * player, unsigned int progress)
+{
+	gdouble fraction;
+
+	fraction = (progress <= 100) ? progress : 100.0;
+	player->progress_ignore++;
+	gtk_range_set_value(GTK_RANGE(player->progress), fraction);
+	player->progress_ignore--;
+	if(progress == 0)
+		gtk_label_set_text(GTK_LABEL(player->progress_length),
+				"00:00:00");
+}
+
+
+/* player_set_seekable */
+void player_set_seekable(Player * player, gboolean seekable)
+{
+	gtk_widget_set_sensitive(player->progress, seekable ? TRUE : FALSE);
 }
 
 
@@ -644,22 +636,13 @@ void player_set_size(Player * player, int width, int height)
 #ifdef DEBUG
 	fprintf(stderr, "DEBUG: %s(%d, %d)\n", __func__, width, height);
 #endif
-	if(width < 0)
-		width = player->width;
-	if(height < 0)
-		height = player->height;
 	gtk_widget_set_size_request(player->view, width, height);
-	player->width = width;
-	player->height = height;
 }
 
 
 /* player_set_volume */
 void player_set_volume(Player * player, gdouble volume)
 {
-	char buf[256];
-	int len;
-
 #if GTK_CHECK_VERSION(2, 12, 0)
 	if(!(volume >= 0.0 && volume <= 1.0))
 	{
@@ -667,9 +650,7 @@ void player_set_volume(Player * player, gdouble volume)
 					player->tb_volume));
 	}
 #endif
-	len = snprintf(buf, sizeof(buf), "volume %u 1\n",
-			(unsigned)(volume * 100.0));
-	_player_command(player, buf, len);
+	playerbackend_volume(player->backend, volume);
 }
 
 
@@ -756,54 +737,15 @@ static int _error_text(char const * message, int ret)
 /* player_forward */
 void player_forward(Player * player)
 {
-	char const cmd[] = "seek 10 0\n";
-
-	_player_command(player, cmd, sizeof(cmd) - 1);
+	playerbackend_forward(player->backend);
 	_player_message(player, _("Forward"), 1000);
-}
-
-
-/* player_sigchld */
-int player_sigchld(Player * player)
-{
-	pid_t pid;
-	int status;
-	char buf[80];
-
-	if(player->pid == -1)
-		return 1;
-	if((pid = waitpid(player->pid, &status, WNOHANG)) == -1)
-		return player_error(player, "waitpid", 1);
-	if(pid == 0)
-		return 1;
-	if(WIFEXITED(status))
-	{
-		snprintf(buf, sizeof(buf), _("mplayer %d: exited with code %u"),
-				pid, WEXITSTATUS(status));
-		player_error(player, buf, 1);
-	}
-	else
-		fprintf(stderr, "%s%s%d%s", "player: ", "mplayer ", pid,
-				": Unknown state\n");
-	player->pid = -1;
-	return 0;
 }
 
 
 /* player_mute */
 void player_mute(Player * player, PlayerMute mute)
 {
-	char cmd[8];
-	int len;
-
-	len = snprintf(cmd, sizeof(cmd), "%s%s%s\n", "mute",
-			(mute != PLAYER_MUTE_TOGGLE) ? " " : "",
-			(mute != PLAYER_MUTE_TOGGLE)
-			? (mute == PLAYER_MUTE_UNMUTE ? "0" : "1") : "");
-	if(len >= (int)sizeof(cmd))
-		fputs("player: String too long\n", stderr);
-	else
-		_player_command(player, cmd, len);
+	playerbackend_mute(player->backend, mute);
 }
 
 
@@ -843,8 +785,6 @@ int player_open(Player * player, char const * filename)
 	GtkTreeModel * model = GTK_TREE_MODEL(player->pl_store);
 	GtkTreeIter iter;
 	GtkTreePath * path;
-	char cmd[512];
-	size_t len;
 	gboolean autoplay;
 
 	autoplay = _player_config_get_boolean(player, "autoplay", FALSE);
@@ -856,23 +796,8 @@ int player_open(Player * player, char const * filename)
 		player->current = gtk_tree_row_reference_new(model, path);
 		gtk_tree_path_free(path);
 	}
-	_player_reset(player, filename);
-	len = snprintf(cmd, sizeof(cmd), "%s%s%s%s%s",
-			autoplay ? "" : "pausing ",
-			"loadfile \"", filename, "\" 0\n",
-			autoplay ? "" : "frame_step\n");
-	if(len >= sizeof(cmd))
-	{
-		fputs("player: String too long\n", stderr);
-		return 1;
-	}
-	if(_player_command(player, cmd, len) != 0)
-		return 1;
-	/* XXX avoid code duplication */
-	if((player->paused = autoplay ? 0 : 1) == 0 && player->timeout_id == 0)
-		player->timeout_id = g_timeout_add(500, _command_timeout,
-				player);
-	return 0;
+	player_reset(player, filename);
+	return playerbackend_open(player->backend, filename, autoplay);
 }
 
 
@@ -965,21 +890,7 @@ int player_open_url_dialog(Player * player)
 /* player_pause */
 void player_pause(Player * player)
 {
-	char const cmd[] = "pause\n";
-
-	if(player->paused != 0)
-	{
-		if(player->timeout_id == 0)
-			player->timeout_id = g_timeout_add(500,
-					_command_timeout, player);
-	}
-	else if(player->timeout_id != 0)
-	{
-		g_source_remove(player->timeout_id);
-		player->timeout_id = 0;
-	}
-	_player_command(player, cmd, sizeof(cmd) - 1);
-	player->paused = (player->paused == 1) ? 0 : 1;
+	playerbackend_pause(player->backend);
 	if(player->paused)
 		_player_message(player, _("Paused"), 1000);
 }
@@ -988,35 +899,7 @@ void player_pause(Player * player)
 /* player_play */
 void player_play(Player * player)
 {
-	char cmd[512];
-	size_t len;
-	char * filename;
-
-	if((filename = _player_get_filename(player)) == NULL)
-		return;
-	/* FIXME escape double quotes in filename? */
-	if(player->paused == 1)
-		len = snprintf(cmd, sizeof(cmd), "%s", "pause\n");
-	else
-		len = snprintf(cmd, sizeof(cmd), "%s%s%s", "loadfile \"",
-				filename, "\" 0\n");
-	if(len >= sizeof(cmd))
-	{
-		fputs("player: String too long\n", stderr);
-		return;
-	}
-	else
-		_player_reset(player, filename);
-	free(filename);
-	if(_player_command(player, cmd, len) != 0)
-		return;
-	player->paused = 0;
-	if(player->read_id == 0)
-		player->read_id = g_io_add_watch(player->channel[0], G_IO_IN,
-				_command_read, player);
-	if(player->timeout_id == 0)
-		player->timeout_id = g_timeout_add(500, _command_timeout,
-				player);
+	playerbackend_play(player->backend);
 }
 
 
@@ -1252,34 +1135,48 @@ void player_previous(Player * player)
 }
 
 
+/* player_reset */
+void player_reset(Player * player, char const * filename)
+{
+	char * p = NULL;
+	char buf[256];
+
+	playerbackend_reset(player->backend);
+	player_set_progress(player, 0);
+	if(filename != NULL)
+		p = strdup(filename);
+	snprintf(buf, sizeof(buf), "%s%s%s", _("Media player"),
+			(filename != NULL) ? " - " : "", (filename != NULL)
+			? ((p != NULL) ? basename(p) : filename) : "");
+	free(p);
+	gtk_window_set_title(GTK_WINDOW(player->window), buf);
+}
+
+
 /* player_rewind */
 void player_rewind(Player * player)
 {
-	char const cmd[] = "seek -10 0\n";
-
-	_player_command(player, cmd, sizeof(cmd) - 1);
+	playerbackend_rewind(player->backend);
 	_player_message(player, _("Rewind"), 1000);
+}
+
+
+/* player_seek */
+void player_seek(Player * player, gdouble position)
+{
+	if(player->progress_ignore != 0)
+		return;
+	if(position < 0.0)
+		/* XXX hack */
+		position = gtk_range_get_value(GTK_RANGE(player->progress));
+	playerbackend_seek(player->backend, position);
 }
 
 
 /* player_stop */
 void player_stop(Player * player)
 {
-	char const cmd[] = "stop\n";
-
-	_player_command(player, cmd, sizeof(cmd) - 1);
-	_player_set_progress(player, 0);
-	player->paused = 0; /* FIXME also needs a stopped state */
-	if(player->read_id != 0)
-	{
-		g_source_remove(player->read_id);
-		player->read_id = 0;
-	}
-	if(player->timeout_id != 0)
-	{
-		g_source_remove(player->timeout_id);
-		player->timeout_id = 0;
-	}
+	playerbackend_stop(player->backend);
 }
 
 
@@ -1393,7 +1290,6 @@ static void _preferences_on_ok(gpointer data)
 
 
 /* player_show_properties */
-static void _properties_commands(Player * player);
 static GtkWidget * _properties_label(Player * player, GtkSizeGroup * group,
 		char const * label, GtkWidget ** widget);
 static void _properties_reset(Player * player);
@@ -1413,7 +1309,7 @@ void player_show_properties(Player * player, gboolean show)
 	else if(player->me_window == NULL)
 		_properties_window(player);
 	/* set the window title */
-	if((filename = _player_get_filename(player)) == NULL)
+	if((filename = player_get_filename(player)) == NULL)
 		return;
 	snprintf(buf, sizeof(buf), "%s%s", _("Properties of "), basename(
 				filename));
@@ -1422,19 +1318,10 @@ void player_show_properties(Player * player, gboolean show)
 	/* reset the properties */
 	_properties_reset(player);
 	/* obtain the properties */
-	_properties_commands(player);
+	playerbackend_properties(player->backend);
 	/* run commands */
 	gtk_dialog_run(GTK_DIALOG(player->me_window));
 	gtk_widget_hide(player->me_window);
-}
-
-static void _properties_commands(Player * player)
-{
-	char const buf[] = "get_meta_album\nget_meta_artist\nget_meta_comment\n"
-		"get_meta_genre\nget_meta_title\nget_meta_track\n"
-		"get_meta_year\n";
-
-	_player_command(player, buf, sizeof(buf) - 1);
 }
 
 static GtkWidget * _properties_label(Player * player, GtkSizeGroup * group,
@@ -1535,57 +1422,27 @@ static void _properties_window(Player * player)
 /* player_switch_angle */
 void player_switch_angle(Player * player)
 {
-	const char cmd[] = "switch_angle\n";
-
-	_player_command(player, cmd, sizeof(cmd) - 1);
+	playerbackend_switch_angle(player->backend);
 }
 
 
 /* player_switch_audio */
 void player_switch_audio(Player * player)
 {
-	const char cmd[] = "switch_audio\n";
-
-	_player_command(player, cmd, sizeof(cmd) - 1);
+	playerbackend_switch_audio(player->backend);
 }
 
 
 /* player_switch_subtitles */
 void player_switch_subtitles(Player * player)
 {
-	const char cmd[] = "sub_visibility\n";
-
-	_player_command(player, cmd, sizeof(cmd) - 1);
+	playerbackend_switch_subtitles(player->backend);
 }
 
 
 /* private */
 /* functions */
 /* accessors */
-/* player_get_filename */
-static char * _player_get_filename(Player * player)
-{
-	char * ret;
-	GtkTreePath * path;
-	GtkTreeIter iter;
-
-	if(player->current == NULL)
-		return NULL;
-	if((path = gtk_tree_row_reference_get_path(player->current)) == NULL)
-	{
-		gtk_tree_row_reference_free(player->current);
-		player->current = NULL;
-		return NULL;
-	}
-	if(gtk_tree_model_get_iter(GTK_TREE_MODEL(player->pl_store), &iter,
-				path) != TRUE)
-		return NULL;
-	gtk_tree_model_get(GTK_TREE_MODEL(player->pl_store), &iter,
-			PL_COL_FILENAME, &ret, -1);
-	return ret;
-}
-
-
 /* player_set_metadata */
 static void _player_set_metadata(Player * player, unsigned int column,
 		char const * value)
@@ -1608,21 +1465,6 @@ static void _player_set_metadata(Player * player, unsigned int column,
 }
 
 
-/* player_set_progress */
-static void _player_set_progress(Player * player, unsigned int progress)
-{
-	gdouble fraction;
-
-	fraction = (progress <= 100) ? progress : 100.0;
-	player->progress_ignore++;
-	gtk_range_set_value(GTK_RANGE(player->progress), fraction);
-	player->progress_ignore--;
-	if(progress == 0)
-		gtk_label_set_text(GTK_LABEL(player->progress_length),
-				"00:00:00");
-}
-
-
 /* player_config_get_boolean */
 static gboolean _player_config_get_boolean(Player * player,
 		char const * variable, gboolean _default)
@@ -1636,48 +1478,6 @@ static gboolean _player_config_get_boolean(Player * player,
 
 
 /* useful */
-/* player_command */
-static gboolean _command_on_timeout(gpointer data);
-
-static int _player_command(Player * player, char const * cmd, size_t cmd_len)
-{
-	char * p;
-
-	if(player->pid == -1)
-	{
-		fputs(PROGNAME ": mplayer not running\n", stderr);
-		if(player->timeout_id != 0)
-			g_source_remove(player->timeout_id);
-		player->timeout_id = g_timeout_add(1000, _command_on_timeout,
-				player);
-		return -1;
-	}
-#ifdef DEBUG
-	fprintf(stderr, "%s%d%s\"%s\"\n", "DEBUG: pid ", player->pid,
-			": write ", cmd);
-#endif
-	if((p = realloc(player->buf, player->buf_len + cmd_len)) == NULL)
-		return -player_error(NULL, "malloc", 1);
-	player->buf = p;
-	memcpy(&p[player->buf_len], cmd, cmd_len);
-	player->buf_len += cmd_len;
-	if(player->write_id == 0)
-		player->write_id = g_io_add_watch(player->channel[1], G_IO_OUT,
-				_command_write, player);
-	return 0;
-}
-
-static gboolean _command_on_timeout(gpointer data)
-{
-	Player * player = data;
-
-	if(_player_start(player) != 0)
-		return TRUE;
-	player->timeout_id = 0;
-	return FALSE;
-}
-
-
 /* player_config_filename */
 static char * _player_config_filename(void)
 {
@@ -1801,347 +1601,5 @@ static void _player_filters(GtkWidget * dialog)
 static void _player_message(Player * player, char const * message,
 		unsigned int duration)
 {
-	char const cmd[] = "pausing_keep osd_show_text";
-	char buf[128];
-	int len;
-
-	if((len = snprintf(buf, sizeof(buf), "%s \"%s\" %u\n", cmd, message,
-					duration)) >= (int)sizeof(buf))
-		fputs("player: String too long\n", stderr);
-	else
-		_player_command(player, buf, len);
-}
-
-
-/* player_reset */
-static void _player_reset(Player * player, char const * filename)
-{
-	char * p = NULL;
-	char buf[256];
-
-	player->width = 0;
-	player->height = 0;
-	player->audio_bitrate = 0;
-	player->audio_channels = 0;
-	if(player->audio_codec != NULL)
-		free(player->audio_codec);
-	player->audio_codec = NULL;
-	player->audio_rate = 0;
-	player->video_aspect = 0.0;
-	player->video_bitrate = 0;
-	if(player->video_codec != NULL)
-		free(player->video_codec);
-	player->video_codec = NULL;
-	player->video_fps = 0.0;
-	player->video_rate = 0;
-	player->album = -1;
-	player->artist = -1;
-	player->title = -1;
-	_player_set_progress(player, 0);
-	if(filename != NULL)
-		p = strdup(filename);
-	snprintf(buf, sizeof(buf), "%s%s%s", _("Media player"),
-			(filename != NULL) ? " - " : "", (filename != NULL)
-			? ((p != NULL) ? basename(p) : filename) : "");
-	free(p);
-	gtk_window_set_title(GTK_WINDOW(player->window), buf);
-}
-
-
-/* player_start */
-static int _player_start(Player * player)
-{
-	int ret;
-	char const buf[] = "pausing loadfile " PLAYER_SPLASH " 0\nframe_step\n";
-	char wid[32];
-	char * argv[] = { BINDIR "/mplayer", "mplayer", "-slave", "-wid", NULL,
-		"-quiet", "-idle", "-framedrop", "-softvol",
-		"-softvol-max", "200", "-identify", "-noconsolecontrols",
-		"-nomouseinput", NULL };
-	GError * error = NULL;
-
-	argv[4] = wid;
-	_player_reset(player, NULL);
-	/* XXX not portable */
-	snprintf(wid, sizeof(wid), "%lu", (unsigned long)gtk_socket_get_id(
-				GTK_SOCKET(player->view)));
-	if(pipe(player->fd[0]) != 0 || pipe(player->fd[1]) != 0)
-		return -player_error(player, strerror(errno), 1);
-	if((player->pid = fork()) == -1)
-		return -player_error(player, strerror(errno), 1);
-	if(player->pid == 0) /* child */
-	{
-		close(player->fd[0][0]);
-		close(player->fd[1][1]);
-		if(dup2(player->fd[1][0], 0) == -1)
-			exit(player_error(NULL, "dup2", 2));
-		if(dup2(player->fd[0][1], 1) == -1)
-			exit(player_error(NULL, "dup2", 2));
-		execv(argv[0], &argv[1]);
-		exit(player_error(NULL, argv[0], 2));
-	}
-	close(player->fd[0][1]);
-	close(player->fd[1][0]);
-	player->channel[0] = g_io_channel_unix_new(player->fd[0][0]);
-	if(g_io_channel_set_encoding(player->channel[0], NULL, &error)
-			!= G_IO_STATUS_NORMAL)
-	{
-		player_error(player, error->message, 1);
-		g_error_free(error);
-		error = NULL;
-	}
-	g_io_channel_set_buffered(player->channel[0], FALSE);
-	player->read_id = g_io_add_watch(player->channel[0], G_IO_IN,
-			_command_read, player);
-	player->channel[1] = g_io_channel_unix_new(player->fd[1][1]);
-	if(g_io_channel_set_encoding(player->channel[1], NULL, &error)
-			!= G_IO_STATUS_NORMAL)
-	{
-		player_error(player, error->message, 1);
-		g_error_free(error);
-	}
-	g_io_channel_set_buffered(player->channel[1], FALSE);
-	ret = _player_command(player, buf, sizeof(buf) - 1);
-	player->paused = 1;
-	return ret;
-}
-
-
-/* callbacks */
-/* command_read */
-static void _read_parse(Player * player, char const * buf);
-
-static gboolean _command_read(GIOChannel * source, GIOCondition condition,
-		gpointer data)
-{
-	Player * player = data;
-	static char buf[512];
-	static size_t buf_len = 0;
-	gsize read;
-	size_t i;
-	size_t j;
-	GIOStatus status;
-	GError * error = NULL;
-
-	if(condition != G_IO_IN)
-	{
-		player_error(player, "", 0); /* FIXME */
-		gtk_main_quit();
-		return FALSE; /* FIXME report error */
-	}
-	status = g_io_channel_read_chars(source, &buf[buf_len],
-			sizeof(buf) - buf_len, &read, &error);
-	if(status == G_IO_STATUS_EOF || read == 0)
-	{
-		player->read_id = 0;
-		return FALSE; /* FIXME end of file? */
-	}
-	else if(status != G_IO_STATUS_NORMAL)
-	{
-		player_error(player, error->message, 1);
-		g_error_free(error);
-		/* FIXME recover somehow */
-		gtk_main_quit();
-		return FALSE;
-	}
-	buf_len += read;
-	j = 0;
-	for(i = 0; i < buf_len; i++)
-	{
-		if(buf[i] != '\n')
-			continue;
-		buf[i] = '\0';
-		_read_parse(player, &buf[j]);
-		j = i + 1;
-	}
-	buf_len -= j;
-	memmove(buf, &buf[j], buf_len);
-	return TRUE;
-}
-
-static void _read_parse(Player * player, char const * buf)
-{
-	unsigned int u1;
-	unsigned int u2;
-	gdouble db;
-	char str[256];
-	time_t t;
-	struct tm tm;
-
-	if(sscanf(buf, "ANS_META_ALBUM='%255[^'\n]\n", str) == 1)
-	{
-		str[sizeof(str) - 1] = '\0';
-		string_rtrim(str, NULL);
-		gtk_label_set_text(GTK_LABEL(player->me_album), str);
-	}
-	else if(sscanf(buf, "ANS_META_ARTIST='%255[^'\n]\n", str) == 1)
-	{
-		str[sizeof(str) - 1] = '\0';
-		string_rtrim(str, NULL);
-		gtk_label_set_text(GTK_LABEL(player->me_artist), str);
-	}
-	else if(sscanf(buf, "ANS_META_COMMENT='%255[^'\n]\n", str) == 1)
-	{
-		str[sizeof(str) - 1] = '\0';
-		string_rtrim(str, NULL);
-		gtk_label_set_text(GTK_LABEL(player->me_comment), str);
-	}
-	else if(sscanf(buf, "ANS_META_GENRE='%255[^'\n]\n", str) == 1)
-	{
-		str[sizeof(str) - 1] = '\0';
-		string_rtrim(str, NULL);
-		gtk_label_set_text(GTK_LABEL(player->me_genre), str);
-	}
-	else if(sscanf(buf, "ANS_META_TITLE='%255[^'\n]\n", str) == 1)
-	{
-		str[sizeof(str) - 1] = '\0';
-		string_rtrim(str, NULL);
-		gtk_label_set_text(GTK_LABEL(player->me_title), str);
-	}
-	else if(sscanf(buf, "ANS_META_TRACK='%255[^'\n]\n", str) == 1)
-	{
-		str[sizeof(str) - 1] = '\0';
-		string_rtrim(str, NULL);
-		gtk_label_set_text(GTK_LABEL(player->me_track), str);
-	}
-	else if(sscanf(buf, "ANS_META_YEAR='%255[^'\n]\n", str) == 1)
-	{
-		str[sizeof(str) - 1] = '\0';
-		string_rtrim(str, NULL);
-		gtk_label_set_text(GTK_LABEL(player->me_year), str);
-	}
-	else if(sscanf(buf, "ANS_PERCENT_POSITION=%u\n", &u1) == 1)
-	{
-		_player_set_progress(player, u1);
-		if(u1 == 100)
-			player_next(player);
-	}
-	else if(sscanf(buf, "ANS_TIME_POSITION=%lf\n", &db) == 1)
-	{
-		t = db;
-		gmtime_r(&t, &tm);
-		strftime(str, sizeof(str), "%H:%M:%S", &tm);
-		gtk_label_set_text(GTK_LABEL(player->progress_length), str);
-	}
-	else if(sscanf(buf, "ANS_VIDEO_RESOLUTION='%u x %u'\n", &u1, &u2) == 2)
-		player_set_size(player, u1, u2);
-	else if(sscanf(buf, "ID_AUDIO_BITRATE=%u\n", &u1) == 1)
-		player->audio_bitrate = u1;
-	else if(sscanf(buf, "ID_AUDIO_CODEC=%255[^\n]", str) == 1)
-	{
-		str[sizeof(str) - 1] = '\0';
-		string_rtrim(str, NULL);
-		if(player->audio_codec != NULL)
-			free(player->audio_codec);
-		player->audio_codec = strdup(str);
-	}
-	else if(sscanf(buf, "ID_AUDIO_NCH=%u\n", &u1) == 1)
-		player->audio_channels = u1;
-	else if(sscanf(buf, "ID_AUDIO_RATE=%u\n", &u1) == 1)
-		player->audio_rate = u1;
-	else if(sscanf(buf, "ID_CLIP_INFO_NAME%u=%255s", &u1, str) == 2)
-	{
-		str[sizeof(str) - 1] = '\0';
-		string_rtrim(str, NULL);
-		if(strcmp(str, "Album") == 0)
-			player->album = u1;
-		else if(strcmp(str, "Artist") == 0)
-			player->artist = u1;
-		else if(strcmp(str, "Title") == 0)
-			player->title = u1;
-	}
-	else if(sscanf(buf, "ID_CLIP_INFO_VALUE%u=%255[^\n]", &u1, str) == 2)
-	{
-		str[sizeof(str) - 1] = '\0';
-		string_rtrim(str, NULL);
-		if(player->album >= 0 && (unsigned)player->album == u1)
-			_player_set_metadata(player, PL_COL_ALBUM, str);
-		else if(player->artist >= 0 && (unsigned)player->artist == u1)
-			_player_set_metadata(player, PL_COL_ARTIST, str);
-		else if(player->title >= 0 && (unsigned)player->title == u1)
-			_player_set_metadata(player, PL_COL_TITLE, str);
-		/* FIXME also update the duration */
-	}
-	else if(sscanf(buf, "ID_LENGTH=%lf\n", &db) == 1)
-		player->length = db;
-	else if(sscanf(buf, "ID_SEEKABLE=%u\n", &u1) == 1)
-		gtk_widget_set_sensitive(player->progress, u1 ? TRUE : FALSE);
-	else if(sscanf(buf, "ID_VIDEO_ASPECT=%lf\n", &db) == 1)
-		player->video_aspect = db;
-	else if(sscanf(buf, "ID_VIDEO_BITRATE=%u\n", &u1) == 1)
-		player->video_bitrate = u1;
-	else if(sscanf(buf, "ID_VIDEO_CODEC=%255[^\n]", str) == 1)
-	{
-		str[sizeof(str) - 1] = '\0';
-		string_rtrim(str, NULL);
-		if(player->video_codec != NULL)
-			free(player->video_codec);
-		player->video_codec = strdup(str);
-	}
-	else if(sscanf(buf, "ID_VIDEO_FPS=%lf\n", &db) == 1)
-		player->video_fps = db;
-	else if(sscanf(buf, "ID_VIDEO_HEIGHT=%u\n", &u1) == 1)
-		player_set_size(player, -1, u1);
-	else if(sscanf(buf, "ID_VIDEO_RATE=%u\n", &u1) == 1)
-		player->video_rate = u1;
-	else if(sscanf(buf, "ID_VIDEO_WIDTH=%u\n", &u1) == 1)
-		player_set_size(player, u1, -1);
-#ifdef DEBUG
-	else
-		fprintf(stderr, "DEBUG: unknown output \"%s\"\n", buf);
-#endif
-}
-
-
-/* command_timeout */
-static gboolean _command_timeout(gpointer data)
-{
-	Player * player = data;
-	static const char cmd[] = "pausing_keep get_time_pos\n"
-		"pausing_keep get_percent_pos\n";
-
-	_player_command(player, cmd, sizeof(cmd) - 1);
-	return TRUE;
-}
-
-
-/* command_write */
-static gboolean _command_write(GIOChannel * source, GIOCondition condition,
-		gpointer data)
-{
-	Player * player = data;
-	gsize written;
-	char * p;
-	GError * error = NULL;
-
-	if(condition != G_IO_OUT)
-	{
-		player_error(player, "", 0); /* FIXME */
-		gtk_main_quit();
-		player->write_id = 0;
-		return FALSE; /* FIXME report error */
-	}
-	if(g_io_channel_write_chars(source, player->buf, player->buf_len,
-				&written, &error) != G_IO_STATUS_NORMAL)
-	{
-		player_error(player, error->message, 1);
-		g_error_free(error);
-		/* FIXME recover somehow */
-		gtk_main_quit();
-		player->write_id = 0;
-		return FALSE;
-	}
-#ifdef DEBUG
-	fprintf(stderr, "DEBUG: wrote %zu bytes\n", written);
-#endif
-	player->buf_len -= written;
-	memmove(player->buf, &player->buf[written], player->buf_len);
-	if(player->buf_len == 0)
-	{
-		player->write_id = 0;
-		return FALSE;
-	}
-	if((p = realloc(player->buf, player->buf_len)) != NULL)
-		player->buf = p;
-	return TRUE;
+	playerbackend_message(player->backend, message, duration);
 }

@@ -15,8 +15,6 @@
 
 
 
-#include <sys/wait.h>
-#include <signal.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -41,11 +39,6 @@
 #endif
 
 
-/* public */
-/* variables */
-Player * player;
-
-
 /* private */
 /* functions */
 /* usage */
@@ -59,12 +52,11 @@ static int _usage(void)
 /* public */
 /* functions */
 /* main */
-static void _main_signal(void);
-
 int main(int argc, char * argv[])
 {
 	int o;
 	int i;
+	Player * player;
 
 	if(setlocale(LC_ALL, "") == NULL)
 		player_error(NULL, "setlocale", 1);
@@ -77,7 +69,6 @@ int main(int argc, char * argv[])
 			default:
 				return _usage();
 		}
-	_main_signal();
 	if((player = player_new()) == NULL)
 		return 2;
 	if(optind < argc)
@@ -88,43 +79,4 @@ int main(int argc, char * argv[])
 	gtk_main();
 	player_delete(player);
 	return 0;
-}
-
-static void _signal_handler(int signum);
-
-static void _main_signal(void)
-	/* handle mplayer death; should be done in Player as a callback but
-	 * would potentially conflict with other Player instances */
-{
-	struct sigaction sa;
-
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = _signal_handler;
-	sigfillset(&sa.sa_mask);
-	if(sigaction(SIGCHLD, &sa, NULL) == -1)
-		fputs(PROGNAME ": SIGCHLD: Not handled\n", stderr);
-}
-
-static void _signal_handler(int signum)
-{
-	pid_t pid;
-	int status;
-
-	if(signum != SIGCHLD)
-		return;
-	if(player_sigchld(player) == 0)
-		return;
-	if((pid = waitpid(-1, &status, WNOHANG)) == -1)
-	{
-		player_error(NULL, "waitpid", 1);
-		return;
-	}
-	if(pid == 0)
-		return;
-	fputs(PROGNAME ": ", stderr);
-	if(WIFEXITED(status))
-		fprintf(stderr, "%s%d%s%u\n", "child ", pid,
-				": exited with code ", WEXITSTATUS(status));
-	else
-		fprintf(stderr, "%d%s", pid, ": Unknown state\n");
 }

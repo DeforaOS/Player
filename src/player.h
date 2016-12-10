@@ -26,22 +26,41 @@
 /* types */
 typedef struct _Player Player;
 
+typedef enum _PlayerMetadata
+{
+	PM_ALBUM = 0,
+	PM_ARTIST,
+	PM_COMMENT,
+	PM_GENRE,
+	PM_LENGTH,
+	PM_TITLE,
+	PM_TRACK,
+	PM_YEAR
+} PlayerMetadata;
+
 
 /* functions */
 Player * player_new(void);
 void player_delete(Player * player);
 
 /* accessors */
+char * player_get_filename(Player * player);
 gboolean player_get_fullscreen(Player * player);
+gboolean player_get_paused(Player * player);
+
 void player_set_fullscreen(Player * player, gboolean fullscreen);
-void player_set_progress(Player * player, gdouble progress);
+void player_set_metadata(Player * player, PlayerMetadata metadata,
+		char const * value);
+void player_set_paused(Player * player, gboolean paused);
+void player_set_progress(Player * player, unsigned int progress);
+void player_set_seekable(Player * player, gboolean seekable);
 void player_set_size(Player * player, int width, int height);
 void player_set_volume(Player * player, gdouble volume);
 
 /* useful */
 void player_about(Player * player);
 int player_error(Player * player, char const * message, int ret);
-int player_sigchld(Player * player);
+void player_reset(Player * player, char const * filename);
 
 /* playback */
 void player_switch_angle(Player * player);
@@ -72,6 +91,7 @@ void player_next(Player * player);
 void player_pause(Player * player);
 void player_play(Player * player);
 void player_previous(Player * player);
+void player_seek(Player * player, gdouble position);
 void player_stop(Player * player);
 void player_rewind(Player * player);
 

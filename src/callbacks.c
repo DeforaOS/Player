@@ -98,13 +98,6 @@ int on_player_message(void * data, uint32_t value1, uint32_t value2,
 }
 
 
-/* on_player_removed */
-void on_player_removed(gpointer data)
-{
-	/* FIXME implement */
-}
-
-
 /* on_file_open */
 void on_file_open(gpointer data)
 {
