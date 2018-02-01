@@ -12,8 +12,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-/* FIXME:
- * - do not kill mplayer if it couldn't start...?!? */
 
 
 
@@ -197,6 +195,8 @@ void playerbackend_destroy(PlayerBackend * player)
 	g_io_channel_shutdown(player->channel[1], FALSE, NULL);
 	for(i = 0; i < 6; i++)
 	{
+		if(player->pid == -1)
+			break;
 		if((res = waitpid(player->pid, &status, WNOHANG)) == -1)
 		{
 			player_error(NULL, "waitpid", 0);
