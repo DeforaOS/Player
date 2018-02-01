@@ -28,6 +28,11 @@
 #endif
 #include "../common.h"
 
+/* constants */
+#ifndef PROGNAME_MPLAYER
+# define PROGNAME_MPLAYER	"mplayer"
+#endif
+
 
 /* types */
 struct _PlayerBackend
@@ -489,7 +494,7 @@ static int _playerbackend_command(PlayerBackend * player, char const * cmd,
 
 	if(player->pid == -1)
 	{
-		fputs(PROGNAME ": mplayer not running\n", stderr);
+		fputs(PROGNAME ": " PROGNAME_MPLAYER " not running\n", stderr);
 		if(player->timeout_id != 0)
 			g_source_remove(player->timeout_id);
 		player->timeout_id = g_timeout_add(1000, _command_on_timeout,
@@ -528,10 +533,10 @@ int playerbackend_start(PlayerBackend * player)
 	int ret;
 	char const buf[] = "pausing loadfile " PLAYER_SPLASH " 0\nframe_step\n";
 	char wid[32];
-	char * argv[] = { BINDIR "/mplayer", "mplayer", "-slave", "-wid", NULL,
-		"-quiet", "-idle", "-framedrop", "-softvol",
-		"-softvol-max", "200", "-identify", "-noconsolecontrols",
-		"-nomouseinput", NULL };
+	char * argv[] = { BINDIR "/" PROGNAME_MPLAYER, PROGNAME_MPLAYER,
+		"-slave", "-wid", NULL, "-quiet", "-idle", "-framedrop",
+		"-softvol", "-softvol-max", "200", "-identify",
+		"-noconsolecontrols", "-nomouseinput", NULL };
 	GError * error = NULL;
 
 	argv[4] = wid;
@@ -596,13 +601,13 @@ static int _playerbackend_on_sigchld(PlayerBackend * player)
 		return 1;
 	if(WIFEXITED(status))
 	{
-		snprintf(buf, sizeof(buf), "mplayer %d: exited with code %u",
-				pid, WEXITSTATUS(status));
+		snprintf(buf, sizeof(buf), "%s %d: exited with code %u",
+				PROGNAME_MPLAYER, pid, WEXITSTATUS(status));
 		player_error(player->player, buf, 1);
 	}
 	else
-		fprintf(stderr, "%s%s%d%s", PROGNAME ": ", "mplayer ", pid,
-				": Unknown state\n");
+		fprintf(stderr, "%s: %s %d: Unknown state\n", PROGNAME,
+				PROGNAME_MPLAYER, pid);
 	player->pid = -1;
 	return 0;
 }

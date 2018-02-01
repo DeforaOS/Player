@@ -28,6 +28,11 @@
 #endif
 #include "../common.h"
 
+/* constants */
+#ifndef PROGNAME_MPV
+# define PROGNAME_MPV	"mpv"
+#endif
+
 
 /* types */
 struct _PlayerBackend
@@ -487,7 +492,7 @@ static int _playerbackend_command(PlayerBackend * player, char const * cmd,
 
 	if(player->pid == -1)
 	{
-		fputs(PROGNAME ": mpv not running\n", stderr);
+		fputs(PROGNAME ": " PROGNAME_MPV " not running\n", stderr);
 		if(player->timeout_id != 0)
 			g_source_remove(player->timeout_id);
 		player->timeout_id = g_timeout_add(1000, _command_on_timeout,
@@ -527,7 +532,7 @@ int playerbackend_start(PlayerBackend * player)
 	char const buf[] = "loadfile " PLAYER_SPLASH "\nframe_step\n";
 	char wid[32];
 	/* FIXME configuration value for the path to the binary? */
-	char * argv[] = { BINDIR "/mpv", "mpv", "--wid", NULL,
+	char * argv[] = { BINDIR "/" PROGNAME_MPV, PROGNAME_MPV, "--wid", NULL,
 		"--input-file=/dev/stdin", "--input-terminal=no",
 		"--idle", NULL };
 	GError * error = NULL;
@@ -594,13 +599,13 @@ static int _playerbackend_on_sigchld(PlayerBackend * player)
 		return 1;
 	if(WIFEXITED(status))
 	{
-		snprintf(buf, sizeof(buf), "mpv %d: exited with code %u",
-				pid, WEXITSTATUS(status));
+		snprintf(buf, sizeof(buf), "%s %d: exited with code %u",
+				PROGNAME_MPV, pid, WEXITSTATUS(status));
 		player_error(player->player, buf, 1);
 	}
 	else
-		fprintf(stderr, "%s%s%d%s", PROGNAME ": ", "mpv ", pid,
-				": Unknown state\n");
+		fprintf(stderr, "%s: %s %d: Unknown state\n", PROGNAME,
+				PROGNAME_MPV, pid);
 	player->pid = -1;
 	return 0;
 }
