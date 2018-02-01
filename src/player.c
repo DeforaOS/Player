@@ -728,7 +728,7 @@ int player_error(Player * player, char const * message, int ret)
 
 static int _error_text(char const * message, int ret)
 {
-	fputs(PROGNAME ": ", stderr);
+	fputs(PROGNAME_PLAYER ": ", stderr);
 	perror(message);
 	return ret;
 }

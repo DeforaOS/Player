@@ -152,7 +152,7 @@ static void _init_signal(void)
 	sa.sa_handler = _init_signal_handler;
 	sigfillset(&sa.sa_mask);
 	if(sigaction(SIGCHLD, &sa, NULL) == -1)
-		fputs(PROGNAME ": SIGCHLD: Not handled\n", stderr);
+		fputs(PROGNAME_PLAYER ": SIGCHLD: Not handled\n", stderr);
 }
 
 static void _init_signal_handler(int signum)
@@ -172,7 +172,7 @@ static void _init_signal_handler(int signum)
 	}
 	if(pid == 0)
 		return;
-	fputs(PROGNAME ": ", stderr);
+	fputs(PROGNAME_PLAYER ": ", stderr);
 	if(WIFEXITED(status))
 		fprintf(stderr, "%s%d%s%u\n", "child ", pid,
 				": exited with code ", WEXITSTATUS(status));
@@ -238,7 +238,7 @@ void playerbackend_message(PlayerBackend * player, char const * message,
 
 	if((len = snprintf(buf, sizeof(buf), "%s \"%s\" %u\n", cmd, message,
 					duration)) >= (int)sizeof(buf))
-		fputs(PROGNAME ": String too long\n", stderr);
+		fputs(PROGNAME_PLAYER ": String too long\n", stderr);
 	else
 		_playerbackend_command(player, buf, len);
 }
@@ -289,7 +289,7 @@ void playerbackend_mute(PlayerBackend * player, PlayerMute mute)
 			(mute != PLAYER_MUTE_TOGGLE)
 			? (mute == PLAYER_MUTE_UNMUTE ? "0" : "1") : "");
 	if(len >= (int)sizeof(cmd))
-		fputs(PROGNAME ": String too long\n", stderr);
+		fputs(PROGNAME_PLAYER ": String too long\n", stderr);
 	else
 		_playerbackend_command(player, cmd, len);
 }
@@ -308,7 +308,7 @@ int playerbackend_open(PlayerBackend * player, char const * filename,
 			autoplay ? "" : "frame_step\n");
 	if(len >= sizeof(cmd))
 	{
-		fputs(PROGNAME ": String too long\n", stderr);
+		fputs(PROGNAME_PLAYER ": String too long\n", stderr);
 		return -1;
 	}
 	if(_playerbackend_command(player, cmd, len) != 0)
@@ -360,7 +360,7 @@ void playerbackend_play(PlayerBackend * player)
 				filename, "\" 0\n");
 	if(len >= sizeof(cmd))
 	{
-		fputs(PROGNAME ": String too long\n", stderr);
+		fputs(PROGNAME_PLAYER ": String too long\n", stderr);
 		return;
 	}
 	else
@@ -496,7 +496,8 @@ static int _playerbackend_command(PlayerBackend * player, char const * cmd,
 
 	if(player->pid == -1)
 	{
-		fputs(PROGNAME ": " PROGNAME_MPLAYER " not running\n", stderr);
+		fputs(PROGNAME_PLAYER ": " PROGNAME_MPLAYER " not running\n",
+				stderr);
 		if(player->timeout_id != 0)
 			g_source_remove(player->timeout_id);
 		player->timeout_id = g_timeout_add(1000, _command_on_timeout,
@@ -608,7 +609,7 @@ static int _playerbackend_on_sigchld(PlayerBackend * player)
 		player_error(player->player, buf, 1);
 	}
 	else
-		fprintf(stderr, "%s: %s %d: Unknown state\n", PROGNAME,
+		fprintf(stderr, "%s: %s %d: Unknown state\n", PROGNAME_PLAYER,
 				PROGNAME_MPLAYER, pid);
 	player->pid = -1;
 	return 0;
