@@ -130,6 +130,8 @@ PlayerBackend * playerbackend_init(Player * player)
 	backend->read_id = 0;
 	backend->write_id = 0;
 	backend->timeout_id = 0;
+	backend->audio_codec = NULL;
+	backend->video_codec = NULL;
 	playerbackend_reset(backend);
 	_init_signal();
 	return backend;
