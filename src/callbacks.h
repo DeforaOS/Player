@@ -28,6 +28,7 @@ int on_player_message(void * data, uint32_t value1, uint32_t value2,
 
 /* file menu */
 void on_file_open(gpointer data);
+void on_file_open_dvd(gpointer data);
 void on_file_open_url(gpointer data);
 void on_file_properties(gpointer data);
 void on_file_close(gpointer data);

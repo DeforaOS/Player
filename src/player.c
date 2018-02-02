@@ -138,6 +138,8 @@ static const DesktopMenu _player_menu_file[] =
 {
 	{ N_("_Open..."), G_CALLBACK(on_file_open), GTK_STOCK_OPEN,
 		GDK_CONTROL_MASK, GDK_KEY_O },
+	{ N_("Open _DVD"), G_CALLBACK(on_file_open_dvd), "gnome-dev-dvd",
+		0, 0 },
 	{ N_("Open _URL..."), G_CALLBACK(on_file_open_url), NULL, 0, 0 },
 	{ "", NULL, NULL, 0, 0 },
 	{ N_("_Properties"), G_CALLBACK(on_file_properties),
@@ -823,6 +825,13 @@ int player_open_dialog(Player * player)
 	ret = player_open(player, filename);
 	g_free(filename);
 	return ret;
+}
+
+
+/* player_open_dvd */
+int player_open_dvd(Player * player)
+{
+	return player_open(player, "dvdnav://");
 }
 
 

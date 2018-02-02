@@ -107,6 +107,15 @@ void on_file_open(gpointer data)
 }
 
 
+/* on_file_open_dvd */
+void on_file_open_dvd(gpointer data)
+{
+	Player * player = data;
+
+	player_open_dvd(player);
+}
+
+
 /* on_file_open_url */
 void on_file_open_url(gpointer data)
 {
