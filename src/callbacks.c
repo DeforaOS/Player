@@ -209,6 +209,8 @@ void on_help_about(gpointer data)
 /* on_help_contents */
 void on_help_contents(gpointer data)
 {
+	(void) data;
+
 	desktop_help_contents(PACKAGE, PROGNAME);
 }
 
