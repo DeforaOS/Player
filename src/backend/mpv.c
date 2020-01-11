@@ -556,8 +556,9 @@ int playerbackend_start(PlayerBackend * player)
 			exit(player_error(NULL, "dup2", 2));
 		if(dup2(player->fd[0][1], 1) == -1)
 			exit(player_error(NULL, "dup2", 2));
-		execv(argv[0], &argv[1]);
-		exit(player_error(NULL, argv[0], 2));
+		if((ret = execv(argv[0], &argv[1])) == 0)
+			ret = 2;
+		exit(player_error(NULL, argv[0], ret));
 	}
 	close(player->fd[0][1]);
 	close(player->fd[1][0]);
