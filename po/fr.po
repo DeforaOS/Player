@@ -1,268 +1,272 @@
 # $Id$
-# Copyright (c) 2010-2014 Pierre Pronchery <khorben@defora.org>
+# Copyright (c) 2010-2020 Pierre Pronchery <khorben@defora.org>
 # French translations for Player package.
 # This file is distributed under the same license as the Player package.
 # Pierre Pronchery <khorben@defora.org>, 2010.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Player 0.1.2\n"
+"Project-Id-Version: Player 0.1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-10 05:27+0100\n"
+"POT-Creation-Date: 2020-01-11 08:54+0100\n"
 "PO-Revision-Date: 2010-04-23 03:44+0200\n"
 "Last-Translator: Pierre Pronchery <khorben@defora.org>\n"
 "Language-Team: French\n"
-"Language: \n"
+"Language: French\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ../src/main.c:47
-#, fuzzy, c-format
+#, c-format
 msgid "Usage: %s [filename...]\n"
-msgstr "Usage: player [fichier...]\n"
+msgstr "Usage: %s [fichier...]\n"
 
 #: ../src/player.c:139
 msgid "_Open..."
 msgstr "_Ouvrir..."
 
 #: ../src/player.c:141
+msgid "Open _DVD"
+msgstr "Lire un _DVD"
+
+#: ../src/player.c:143
 msgid "Open _URL..."
 msgstr "Ouvrir une _URL..."
 
-#: ../src/player.c:143
+#: ../src/player.c:145
 msgid "_Properties"
 msgstr "_Propriétés"
 
-#: ../src/player.c:146
+#: ../src/player.c:148
 msgid "_Close"
 msgstr "_Fermer"
 
-#: ../src/player.c:153
+#: ../src/player.c:155
 msgid "_Preferences"
 msgstr "_Préférences"
 
-#: ../src/player.c:160
+#: ../src/player.c:162
 msgid "_Playlist"
 msgstr "_Liste de lecture"
 
-#: ../src/player.c:163 ../src/player.c:166
+#: ../src/player.c:165 ../src/player.c:168
 msgid "_Fullscreen"
 msgstr "_Plein écran"
 
-#: ../src/player.c:170
+#: ../src/player.c:172
 msgid "Switch angle"
 msgstr "Changed d'angle"
 
-#: ../src/player.c:171
+#: ../src/player.c:173
 msgid "Switch audio"
 msgstr "Changer de piste audio"
 
-#: ../src/player.c:172
+#: ../src/player.c:174
 msgid "Switch subtitles"
 msgstr "Changer de sous-titres"
 
-#: ../src/player.c:179
+#: ../src/player.c:181
 msgid "_Contents"
 msgstr "_Sommaire"
 
-#: ../src/player.c:182 ../src/player.c:184
+#: ../src/player.c:184 ../src/player.c:186
 msgid "_About"
 msgstr "À _propos"
 
-#: ../src/player.c:191
+#: ../src/player.c:193
 msgid "_File"
 msgstr "_Fichier"
 
-#: ../src/player.c:192
+#: ../src/player.c:194
 msgid "_Edit"
 msgstr "É_dition"
 
-#: ../src/player.c:193
+#: ../src/player.c:195
 msgid "_View"
 msgstr "_Vue"
 
-#: ../src/player.c:194
+#: ../src/player.c:196
 msgid "_Help"
 msgstr "_Aide"
 
-#: ../src/player.c:202
+#: ../src/player.c:204
 msgid "Open"
 msgstr "Ouvrir"
 
-#: ../src/player.c:205 ../src/player.c:1379
+#: ../src/player.c:207 ../src/player.c:1388
 msgid "Properties"
 msgstr "Propriétés"
 
-#: ../src/player.c:208
+#: ../src/player.c:210
 msgid "Preferences"
 msgstr "Préférences"
 
-#: ../src/player.c:216
+#: ../src/player.c:218
 msgid "Previous"
 msgstr "Précédent"
 
-#: ../src/player.c:218 ../src/player.c:1160
+#: ../src/player.c:220 ../src/player.c:1169
 msgid "Rewind"
 msgstr "Retour rapide"
 
-#: ../src/player.c:220
+#: ../src/player.c:222
 msgid "Play"
 msgstr "Lecture"
 
-#: ../src/player.c:221
+#: ../src/player.c:223
 msgid "Pause"
 msgstr "Pause"
 
-#: ../src/player.c:223
+#: ../src/player.c:225
 msgid "Stop"
 msgstr "Stop"
 
-#: ../src/player.c:224 ../src/player.c:741
+#: ../src/player.c:226 ../src/player.c:743
 msgid "Forward"
 msgstr "Avance rapide"
 
-#: ../src/player.c:226
+#: ../src/player.c:228
 msgid "Next"
 msgstr "Suivant"
 
-#: ../src/player.c:301 ../src/player.c:1148
+#: ../src/player.c:303 ../src/player.c:1157
 msgid "Media player"
 msgstr "Lecteur média"
 
-#: ../src/player.c:360
+#: ../src/player.c:362
 msgid "Fullscreen"
 msgstr "Plein écran"
 
-#: ../src/player.c:393
+#: ../src/player.c:395
 msgid "Playlist"
 msgstr "Liste de lecture"
 
-#: ../src/player.c:428
+#: ../src/player.c:430
 msgid "Artist"
 msgstr "Artiste"
 
-#: ../src/player.c:429
+#: ../src/player.c:431
 msgid "Album"
 msgstr "Album"
 
-#: ../src/player.c:430
+#: ../src/player.c:432
 msgid "Title"
 msgstr "Titre"
 
-#: ../src/player.c:431
+#: ../src/player.c:433
 msgid "Duration"
 msgstr "Durée"
 
-#: ../src/player.c:673
+#: ../src/player.c:675
 msgid "Media player for the DeforaOS desktop"
 msgstr "Lecteur média pour l'environnement DeforaOS"
 
-#: ../src/player.c:680
+#: ../src/player.c:682
 msgid "translator-credits"
 msgstr "Pierre Pronchery <khorben@defora.org>"
 
-#: ../src/player.c:717 ../src/player.c:721
+#: ../src/player.c:719 ../src/player.c:723
 msgid "Error"
 msgstr "Erreur"
 
-#: ../src/player.c:811
+#: ../src/player.c:813
 msgid "Open file..."
 msgstr "Ouvrir fichier..."
 
-#: ../src/player.c:850
+#: ../src/player.c:859
 msgid "Open URL..."
 msgstr "Ouvrir une URL..."
 
-#: ../src/player.c:868
+#: ../src/player.c:877
 msgid "URL: "
 msgstr "URL : "
 
-#: ../src/player.c:895
+#: ../src/player.c:904
 msgid "Paused"
 msgstr "Pause"
 
-#: ../src/player.c:922
+#: ../src/player.c:931
 msgid "Unknown album"
 msgstr "Album inconnu"
 
-#: ../src/player.c:923
+#: ../src/player.c:932
 msgid "Unknown artist"
 msgstr "Artiste inconnu"
 
-#: ../src/player.c:924
+#: ../src/player.c:933
 msgid "Unknown title"
 msgstr "Titre inconnu"
 
-#: ../src/player.c:925
+#: ../src/player.c:934
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: ../src/player.c:937
+#: ../src/player.c:946
 msgid "Add file(s)..."
 msgstr "Ajouter des fichiers..."
 
-#: ../src/player.c:1007
+#: ../src/player.c:1016
 msgid "Open playlist..."
 msgstr "Ouvrir liste de lecture..."
 
-#: ../src/player.c:1014
+#: ../src/player.c:1023
 msgid "Playlists"
 msgstr "Listes de lecture"
 
-#: ../src/player.c:1020 ../src/player.c:1594
+#: ../src/player.c:1029 ../src/player.c:1603
 msgid "All files"
 msgstr "Tous les fichiers"
 
-#: ../src/player.c:1214
+#: ../src/player.c:1223
 msgid "Media player preferences"
 msgstr "Préférences du lecteur média"
 
-#: ../src/player.c:1232
+#: ../src/player.c:1241
 msgid "_Automatically play files when opened"
 msgstr "Lire les fichiers _automatiquement après ouverture"
 
-#: ../src/player.c:1314
+#: ../src/player.c:1323
 msgid "Properties of "
 msgstr "_Propriétés de "
 
-#: ../src/player.c:1397
+#: ../src/player.c:1406
 msgid "Album: "
 msgstr "Album : "
 
-#: ../src/player.c:1400
+#: ../src/player.c:1409
 msgid "Artist: "
 msgstr "Artiste : "
 
-#: ../src/player.c:1403
+#: ../src/player.c:1412
 msgid "Comment: "
 msgstr "Commentaire : "
 
-#: ../src/player.c:1406
+#: ../src/player.c:1415
 msgid "Genre: "
 msgstr "Genre : "
 
-#: ../src/player.c:1409
+#: ../src/player.c:1418
 msgid "Title: "
 msgstr "Titre : "
 
-#: ../src/player.c:1412
+#: ../src/player.c:1421
 msgid "Track: "
 msgstr "Piste : "
 
-#: ../src/player.c:1415
+#: ../src/player.c:1424
 msgid "Year: "
 msgstr "Année : "
 
-#: ../src/player.c:1574
+#: ../src/player.c:1583
 msgid "Video and audio files"
 msgstr "Fichiers vidéo et audio"
 
-#: ../src/player.c:1582
+#: ../src/player.c:1591
 msgid "Video files"
 msgstr "Fichiers vidéo"
 
-#: ../src/player.c:1588
+#: ../src/player.c:1597
 msgid "Audio files"
 msgstr "Fichiers audio"
