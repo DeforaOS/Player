@@ -23,4 +23,4 @@
 #endif
 
 /* XXX make it more flexible */
-#include "backend/mplayer.c"
+#include "backend/mpv.c"
