@@ -536,6 +536,7 @@ int playerbackend_start(PlayerBackend * player)
 	int ret;
 	char const buf[] = "pausing loadfile " PLAYER_SPLASH " 0\nframe_step\n";
 	char wid[32];
+	/* FIXME configuration value for the path to the binary? */
 	char * argv[] = { BINDIR "/" PROGNAME_MPLAYER, PROGNAME_MPLAYER,
 		"-slave", "-wid", NULL, "-quiet", "-idle", "-framedrop",
 		"-softvol", "-softvol-max", "200", "-identify",
