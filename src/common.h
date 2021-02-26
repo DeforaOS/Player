@@ -34,6 +34,8 @@
 #  define DATADIR		PREFIX "/share"
 # endif
 
+# define PLAYER_CONFIG_FILE	"Player.conf"
+# define PLAYER_CONFIG_VENDOR	"DeforaOS/" VENDOR
 # define PLAYER_SPLASH		DATADIR "/" PACKAGE "/splash.png"
 
 #endif /* !PLAYER_COMMON_H */

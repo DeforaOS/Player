@@ -107,7 +107,6 @@ struct _Player
 
 
 /* constants */
-#define PLAYER_CONFIG_FILE	".player"
 #define PLAYER_ICON_NAME	"multimedia"
 
 enum
@@ -246,7 +245,6 @@ static gboolean _player_config_get_boolean(Player * player,
 		char const * variable, gboolean _default);
 
 /* useful */
-static char * _player_config_filename(void);
 static int _player_config_load(Player * player);
 static int _player_config_save(Player * player);
 
@@ -1503,48 +1501,24 @@ static gboolean _player_config_get_boolean(Player * player,
 
 
 /* useful */
-/* player_config_filename */
-static char * _player_config_filename(void)
-{
-	char const * homedir;
-	size_t len;
-	char * filename;
-
-	if((homedir = getenv("HOME")) == NULL)
-		homedir = g_get_home_dir();
-	len = strlen(homedir) + 1 + sizeof(PLAYER_CONFIG_FILE);
-	if((filename = malloc(len)) == NULL)
-		return NULL;
-	snprintf(filename, len, "%s/%s", homedir, PLAYER_CONFIG_FILE);
-	return filename;
-}
-
-
 /* player_config_load */
 static int _player_config_load(Player * player)
 {
-	int ret;
-	char * filename;
-
-	if((filename = _player_config_filename()) == NULL)
-		return -1;
-	ret = config_load(player->config, filename);
-	free(filename);
-	return ret;
+	if(config_load_preferences(player->config, PLAYER_CONFIG_VENDOR,
+				PACKAGE, PLAYER_CONFIG_FILE) != 0)
+		return -player_error(NULL, error_get(NULL), 1);
+	return 0;
 }
 
 
 /* player_config_save */
 static int _player_config_save(Player * player)
 {
-	int ret;
-	char * filename;
-
-	if((filename = _player_config_filename()) == NULL)
-		return -1;
-	ret = config_save(player->config, filename);
-	free(filename);
-	return ret;
+	if(config_save_preferences_user(player->config,
+				PLAYER_CONFIG_VENDOR, PACKAGE,
+				PLAYER_CONFIG_FILE) != 0)
+		return -player_error(NULL, error_get(NULL), 1);
+	return 0;
 }
 
 
