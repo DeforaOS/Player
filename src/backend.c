@@ -18,8 +18,8 @@
 #include "backend.h"
 
 /* constants */
-#ifndef PROGNAME
-# define PROGNAME	"player"
+#ifndef PROGNAME_PLAYER
+# define PROGNAME_PLAYER	"player"
 #endif
 
 /* XXX make it more flexible */

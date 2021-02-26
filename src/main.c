@@ -25,17 +25,17 @@
 #define _(string) gettext(string)
 
 /* constants */
-#ifndef PROGNAME
-# define PROGNAME	"player"
+#ifndef PROGNAME_PLAYER
+# define PROGNAME_PLAYER	"player"
 #endif
 #ifndef PREFIX
-# define PREFIX		"/usr/local"
+# define PREFIX			"/usr/local"
 #endif
 #ifndef DATADIR
-# define DATADIR	PREFIX "/share"
+# define DATADIR		PREFIX "/share"
 #endif
 #ifndef LOCALEDIR
-# define LOCALEDIR	DATADIR "/locale"
+# define LOCALEDIR		DATADIR "/locale"
 #endif
 
 
@@ -44,7 +44,7 @@
 /* usage */
 static int _usage(void)
 {
-	fprintf(stderr, _("Usage: %s [filename...]\n"), PROGNAME);
+	fprintf(stderr, _("Usage: %s [filename...]\n"), PROGNAME_PLAYER);
 	return 1;
 }
 

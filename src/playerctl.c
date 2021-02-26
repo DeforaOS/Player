@@ -27,14 +27,17 @@
 #define _(string) gettext(string)
 
 /* constants */
+#ifndef PROGNAME_PLAYERCTL
+# define PROGNAME_PLAYERCTL	"playerctl"
+#endif
 #ifndef PREFIX
-# define PREFIX		"/usr/local"
+# define PREFIX			"/usr/local"
 #endif
 #ifndef DATADIR
-# define DATADIR	PREFIX "/share"
+# define DATADIR		PREFIX "/share"
 #endif
 #ifndef LOCALEDIR
-# define LOCALEDIR	DATADIR "/locale"
+# define LOCALEDIR		DATADIR "/locale"
 #endif
 
 
@@ -59,7 +62,7 @@ static int _playerctl(PlayerMessage message, unsigned int arg1)
 /* error */
 static int _error(char const * message, int ret)
 {
-	fputs("playerctl: ", stderr);
+	fputs(PROGNAME_PLAYERCTL ": ", stderr);
 	perror(message);
 	return ret;
 }
@@ -68,7 +71,7 @@ static int _error(char const * message, int ret)
 /* usage */
 static int _usage(void)
 {
-	fputs(_("Usage: playerctl -FMmNPRpsu\n"), stderr);
+	fprintf(stderr, _("Usage: %s -FMmNPRpsu\n"), PROGNAME_PLAYERCTL);
 	return 1;
 }
 

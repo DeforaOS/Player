@@ -25,11 +25,8 @@
 #include "../include/Player.h"
 #include "player.h"
 #include "callbacks.h"
+#include "common.h"
 #include "../config.h"
-
-#ifndef PROGNAME
-# define PROGNAME	"player"
-#endif
 
 
 /* macros */
@@ -211,7 +208,7 @@ void on_help_contents(gpointer data)
 {
 	(void) data;
 
-	desktop_help_contents(PACKAGE, PROGNAME);
+	desktop_help_contents(PACKAGE, PROGNAME_PLAYER);
 }
 
 
