@@ -32,11 +32,14 @@
 			<holder>&firstname; &surname; &lt;&email;&gt;</holder>
 		</copyright>
 		<legalnotice>
-			<para>This manual page was written for the DeforaOS project (and may be
-				used by others).</para>
-			<para>Permission is granted to copy, distribute and/or modify this
-				document under the terms of the GNU General Public License,
-				Version 3 as published by the Free Software Foundation.</para>
+                        <para>This documentation was written for the DeforaOS
+                                project (and may be used by others).
+                        </para>
+			<para>Permission is granted to copy, distribute and/or
+				modify this document under the terms of the
+				Creative Commons Attribution 4.0 International
+				license.
+			</para>
 		</legalnotice>
 	</refentryinfo>
 	<refmeta>
