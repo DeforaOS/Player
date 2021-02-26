@@ -87,6 +87,7 @@ struct _Player
 	/* preferences */
 	GtkWidget * pr_window;
 	GtkWidget * pr_autoplay;
+	GtkWidget * pr_playlist_restore;
 
 	/* properties */
 	GtkWidget * me_window;
@@ -1240,6 +1241,11 @@ void player_show_preferences(Player * player, gboolean show)
 	player->pr_autoplay = gtk_check_button_new_with_mnemonic(
 			_("_Automatically play files when opened"));
 	gtk_box_pack_start(GTK_BOX(vbox), player->pr_autoplay, FALSE, TRUE, 0);
+	/* restore playlist */
+	player->pr_playlist_restore = gtk_check_button_new_with_mnemonic(
+			_("_Restore the previous playlist on startup"));
+	gtk_box_pack_start(GTK_BOX(vbox), player->pr_playlist_restore, FALSE,
+			TRUE, 0);
 	_preferences_set(player);
 	gtk_widget_show_all(vbox);
 	if(show)
@@ -1255,6 +1261,12 @@ static void _preferences_set(Player * player)
 	if((p = config_get(player->config, NULL, "autoplay")) != NULL)
 		boolean = strtol(p, NULL, 10);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(player->pr_autoplay),
+			boolean);
+	boolean = TRUE;
+	if((p = config_get(player->config, NULL, "playlist_restore")) != NULL)
+		boolean = strtol(p, NULL, 10);
+	gtk_toggle_button_set_active(
+			GTK_TOGGLE_BUTTON(player->pr_playlist_restore),
 			boolean);
 }
 
@@ -1289,11 +1301,15 @@ static void _preferences_on_ok(gpointer data)
 	Player * player = data;
 	gboolean boolean;
 
+	/* XXX config_set() may fail */
 	gtk_widget_hide(player->pr_window);
 	boolean = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(
 				player->pr_autoplay));
-	/* XXX may fail */
 	config_set(player->config, NULL, "autoplay", boolean ? "1" : "0");
+	boolean = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(
+				player->pr_playlist_restore));
+	config_set(player->config, NULL, "playlist_restore",
+			boolean ? "1" : "0");
 	_player_config_save(player);
 }
 
