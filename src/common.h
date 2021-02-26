@@ -21,19 +21,19 @@
 # include "../config.h"
 
 /* constants */
-#ifndef PROGNAME_PLAYER
-# define PROGNAME_PLAYER	"player"
-#endif
-#ifndef PREFIX
-# define PREFIX			"/usr/local"
-#endif
-#ifndef BINDIR
-# define BINDIR			PREFIX "/bin"
-#endif
-#ifndef DATADIR
-# define DATADIR		PREFIX "/share"
-#endif
+# ifndef PROGNAME_PLAYER
+#  define PROGNAME_PLAYER	"player"
+# endif
+# ifndef PREFIX
+#  define PREFIX		"/usr/local"
+# endif
+# ifndef BINDIR
+#  define BINDIR		PREFIX "/bin"
+# endif
+# ifndef DATADIR
+#  define DATADIR		PREFIX "/share"
+# endif
 
-#define PLAYER_SPLASH		DATADIR "/" PACKAGE "/splash.png"
+# define PLAYER_SPLASH		DATADIR "/" PACKAGE "/splash.png"
 
 #endif /* !PLAYER_COMMON_H */
