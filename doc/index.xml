@@ -2,13 +2,14 @@
 <!-- $Id$ -->
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY firstname  "Pierre">
-<!ENTITY surname    "Pronchery">
-<!ENTITY username   "khorben">
-<!ENTITY email      "khorben@defora.org">
-<!ENTITY package    "DeforaOS Player">
-<!ENTITY player1    "player.xml">
-<!ENTITY playerctl1 "playerctl.xml">
+	<!ENTITY firstname  "Pierre">
+	<!ENTITY surname    "Pronchery">
+	<!ENTITY username   "khorben">
+	<!ENTITY email      "khorben@defora.org">
+	<!ENTITY player1    "player.xml">
+	<!ENTITY playerctl1 "playerctl.xml">
+	<!ENTITY % configentities SYSTEM "../config.ent">
+	%configentities;
 ]>
 <book><?dbhtml filename="index.html"?>
 	<bookinfo>
@@ -45,7 +46,7 @@
 			</para>
 		</legalnotice>
 	</bookinfo>
-	<title>&package;</title>
+	<title>&vendor; &package;</title>
 	<para>Media player for the DeforaOS desktop environment.</para>
 	<chapter>
 		<title>User manual</title>
