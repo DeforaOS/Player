@@ -227,6 +227,10 @@ msgstr "Préférences du lecteur média"
 msgid "_Automatically play files when opened"
 msgstr "Lire les fichiers _automatiquement après ouverture"
 
+#: ../src/player.c:1257
+msgid "_Restore the previous playlist on startup"
+msgstr "_Restaurer la liste de lecture précédente au démarrage"
+
 #: ../src/player.c:1323
 msgid "Properties of "
 msgstr "_Propriétés de "
