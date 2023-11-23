@@ -312,7 +312,7 @@ void on_progress_changed(gpointer data)
 	Player * player = data;
 
 	/* XXX hack */
-	player_set_progress(player, -1.0);
+	player_seek(player, -1.0);
 }
 
 
