@@ -57,7 +57,7 @@ msgstr "_Plein écran"
 
 #: ../src/player.c:172
 msgid "Switch angle"
-msgstr "Changed d'angle"
+msgstr "Changer d'angle"
 
 #: ../src/player.c:173
 msgid "Switch audio"
