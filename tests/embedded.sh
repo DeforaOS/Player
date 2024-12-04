@@ -51,6 +51,14 @@ _embedded()
 }
 
 
+#usage
+_usage()
+{
+	echo "Usage: $PROGNAME [-c] target..." 1>&2
+	return 1
+}
+
+
 #main
 clean=0
 while getopts "cO:P:" name; do
@@ -79,4 +87,16 @@ fi
 #clean
 [ $clean -ne 0 ] && exit 0
 
-_embedded							|| exit 2
+exec 3>&1
+ret=0
+while [ $# -gt 0 ]; do
+	target="$1"
+	dirname="${target%/*}"
+	shift
+
+	if [ -n "$dirname" -a "$dirname" != "$target" ]; then
+		$MKDIR -- "$dirname"				|| ret=$?
+	fi
+	_embedded > "$target"					|| ret=$?
+done
+exit $ret
